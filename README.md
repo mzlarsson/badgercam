@@ -22,7 +22,7 @@ Note: If you are doing development it might be nice to create a virtual environm
 ### TL;DR
     git clone https://github.com/mzlarsson/badgercam.git
     cd badgercam
-    pip install -r requirements.txt 
+    pip install -r src/requirements.txt 
 
 ## Running the sync manually
 1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
