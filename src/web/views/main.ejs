@@ -67,7 +67,7 @@
 							</div>
 
 							<% for (let fileInfo of group.files) { %>
-								<div class = "menu-entry" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
+								<div class = "menu-entry no-select-text" id = "menuentry_<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
 									<%= fileInfo['display'] %>
 								</div>
 							<% } %>
@@ -85,9 +85,7 @@
 
 				<!-- Video player -->
 				<div class = "container-video">
-					<video id = "video-source" controls autoplay="true"></video>
-
-					<span id = "video-info-noselected">Select a video on the left to start watching</span>
+					<video id = "video-source" controls autoplay muted></video>
 
 					<div class = "container-video-info">
 						<span id = "video-info-camera"></span> 
@@ -100,17 +98,30 @@
 
 		<script type = "text/javascript">
 			// Hide all elements by default
-			$("#video-source").hide();
 			$("#container-overlay").hide();
 			$("#container-settings").hide();
 
+			<% if (selected) { %>
+				playVideo($("#menuentry_<%= selected %>"));
+			<% } else { %>
+				playVideo($(".menu-entry").first());
+			<% } %>
+
 			function playVideo(el) {
-				$("#video-source").show();
+				if ($(el).hasClass("selected")) {
+					return;
+				}
+
 				$("#video-info-noselected").hide();
 				$("#video-source").attr('src', $(el).attr("video-file"));
 				$("#video-info-camera").html($(el).attr("camera"));
 				$("#video-info-date").html($(el).attr("video-date"));
 				$("#video-info-time").html($(el).attr("video-time"));
+
+				$(".menu-entry.selected").removeClass("selected");
+				$(el).addClass("selected");
+				let videoId = $(el).attr("id").substring(10);
+				window.history.pushState("badgercam", "BadgerCam", changeUrl({"selected": videoId}));
 			}
 
 			function showSettings() {
@@ -126,7 +137,10 @@
 			function updateSettings() {
 				let grouping = $("#grouping-select").children("option:selected").val();
 				let sorting = $("#sorting-select").children("option:selected").val();
+				window.location.href = changeUrl({"grouping": grouping, "sorting": sorting});
+			}
 
+			function changeUrl(changeParams) {
 				let url = window.location.href;
 				let params = {};
 				if (url.includes("?")) {
@@ -138,10 +152,12 @@
 						}
 					}
 				}
-				params['grouping'] = grouping;
-				params['sorting'] = sorting;
 
-				let newUrl = (url.indexOf("?") >= 0 ? url.substring(0, url.indexOf("?")+1) : url + "?");
+				for (let key in changeParams) {
+					params[key] = changeParams[key];
+				}
+
+				let newUrl = "/?";
 				let firstParam = true;
 				for (let key in params) {
 					if (!firstParam) { newUrl += "&"; }
@@ -149,7 +165,7 @@
 					firstParam = false;
 				}
 
-				window.location.href = newUrl;
+				return newUrl;
 			}
 		</script>
 	</body>

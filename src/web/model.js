@@ -2,8 +2,9 @@
 const chokidar = require('chokidar');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
-const syncPath = "public/synced_videos"
+const syncPath = "public/synced_videos";
 const videoFormat = '.mp4';
 
 var settings = {};
@@ -131,13 +132,15 @@ function getFileDataFromPath(file) {
     let date = dateSrc.substring(0, 4) + "-" + dateSrc.substring(4, 6) + "-" + dateSrc.substring(6);
     let timeSrc = path.basename(parts[parts.length-1], videoFormat);
     let time = timeSrc.substring(0, 2) + ":" + timeSrc.substring(2, 4) + ":" + timeSrc.substring(4);
-    return {
+    let fileData = {
         "camera": device,
         "camera_name": deviceName,
         "date": date,
         "time": time,
         "file": publicUrl
-    }
+    };
+    fileData["id"] = generateId(fileData);
+    return fileData;
 }
 
 function getPublicUrl(file) {
@@ -171,7 +174,10 @@ function groupBy(list, keyFunc) {
     }, {});
 }
 
-
+function generateId(fileData) {
+    let source = fileData.camera + " " + fileData.date + " " + fileData.time;
+    return crypto.createHash("md5").update(source).digest("hex");
+}
 
 
 

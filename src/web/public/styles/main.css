@@ -8,6 +8,15 @@ select {
 video {
     width:100%;
 }
+.no-select-text {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
 
 .container-overlay {
     position: fixed;
@@ -91,6 +100,9 @@ video {
 .menu-entry:hover{
     background:#dddddd;
     cursor:pointer;
+}
+.menu-entry.selected {
+    background:#bbbbbb;
 }
 
 .container-video {
