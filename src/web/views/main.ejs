@@ -62,12 +62,12 @@
 
 					<% for (let group of videoGroups) { %>
 						<div class = "menu-group">
-							<div class = "menu-group-header">
+							<div class = "menu-group-header" onclick = "toggleMenuGroup(this);">
 								<%= group.key %>
 							</div>
 
 							<% for (let fileInfo of group.files) { %>
-								<div class = "menu-entry no-select-text" id = "menuentry_<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
+								<div class = "menu-entry no-select-text" id = "menuentry_<%= fileInfo.id %>" video-id = "<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
 									<%= fileInfo['display'] %>
 								</div>
 							<% } %>
@@ -97,6 +97,10 @@
 						<span id = "video-info-camera"></span> 
 						<span id = "video-info-date"></span> 
 						<span id = "video-info-time"></span> 
+					</div>
+
+					<div class = "container-controls">
+						<input type = "button" value = "Remove video [permanently]" title = "Removes converted video locally but keeps original video file (just in case)" onclick = "removeCurrentVideo();">
 					</div>
 				</div>
 			</div>
@@ -158,10 +162,46 @@
 				$("#video-info-date").html($(el).attr("video-date"));
 				$("#video-info-time").html($(el).attr("video-time"));
 
+				if (isMenuGroupHidden($(el))){
+					toggleMenuGroup($(el));
+				}
+
 				$(".menu-entry.selected").removeClass("selected");
 				$(el).addClass("selected");
-				let videoId = $(el).attr("id").substring(10);
+				let videoId = $(el).attr("video-id");
 				window.history.pushState("badgercam", "BadgerCam", changeUrl({"selected": videoId}));
+			}
+
+			function removeCurrentVideo() {
+				let currentVideo = $(".menu-entry.selected").first();
+				$.get("/remove", {"videoId": currentVideo.attr("video-id")}, function(data) {
+					console.log(data);
+					if (data.success) {
+						playNext();
+						let removeNode = currentVideo;
+						if (currentVideo.parent().children(".menu-entry").length == 1) {
+							removeNode = currentVideo.parent();
+						}
+						removeNode.remove();
+					}
+					else {
+						alert("Oh noes, got an error! '" + data.message + "' (sorry)");
+					}
+				})
+			}
+
+			function isMenuGroupHidden(el) {
+				if (!$(el).hasClass('menu-group')) {
+					el = $(el).parents('.menu-group').first();
+				}
+				return $(el).hasClass('hidden');
+			}
+
+			function toggleMenuGroup(el) {
+				if (!$(el).hasClass('menu-group')) {
+					el = $(el).parents('.menu-group').first();
+				}
+				$(el).toggleClass('hidden');
 			}
 
 			function scrollToMenu() {

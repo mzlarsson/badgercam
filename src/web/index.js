@@ -3,7 +3,7 @@ var app = express();
 var server = http.createServer(app);
 
 const fs = require('fs');
-const { loadBackend, getVideos } = require('./model.js');
+const { loadBackend, getVideos, removeVideo } = require('./model.js');
 loadBackend();
 
 app.use(express.static('public'));
@@ -22,6 +22,18 @@ app.get('/', function(req, res, next){
 	
 	// Send response
 	res.render("main", {'videoGroups': videoGroups, 'selected': selected, 'settings': settings});
+});
+
+app.get('/remove', function(req, res, next) {
+	// Read params
+	let id = req.query.videoId;
+
+	// Calculate result
+	const [success, message] = removeVideo(id);
+
+	// Send response
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ success: success, message: message }));
 });
 
 
