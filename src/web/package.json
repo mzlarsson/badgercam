@@ -1,0 +1,29 @@
+{
+  "name": "badgercam-web",
+  "version": "1.0.0",
+  "description": "Web service to view camera recordings via synced local files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mzlarsson/badgercam.git"
+  },
+  "keywords": [
+    "camera",
+    "sync",
+    "web"
+  ],
+  "author": "Matz Larsson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mzlarsson/badgercam/issues"
+  },
+  "homepage": "https://github.com/mzlarsson/badgercam#readme",
+  "dependencies": {
+    "chokidar": "^3.4.3",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1"
+  }
+}

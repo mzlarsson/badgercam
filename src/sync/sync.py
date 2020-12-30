@@ -109,7 +109,7 @@ def main():
     parser = argparse.ArgumentParser(description='Sync video files (.ASF) via telnet and convert to readable mp4.')
     parser.add_argument('host', type=str, help='Host to connect to, either as IP (preferred) or hostname.')
     parser.add_argument('--remote-folder', type=str, default='/mnt/mmc1', help="Remote folder where the videos are located, e.g. /mnt/mmc1")
-    parser.add_argument('--sync-folder', type=str, default='../synced_videos', help="Local folder where the videos are synced to, e.g. ../synced_videos")
+    parser.add_argument('--sync-folder', type=str, default='web/public/synced_videos', help="Local folder where the videos are synced to, e.g. web/public/synced_videos")
     parser.add_argument('--telnet-user', type=str, default='root', help="User to supply to Telnet session")
     parser.add_argument('--telnet-pass', type=str, default='', help="Password to supply to Telnet session")
     parser.add_argument('--interface', type=str, default='wlan0', help="Interface used for network communication with camera (used to retrieve current IP address)")
