@@ -5,6 +5,9 @@ select {
     width:150px;
     margin-top:2px;
 }
+video {
+    width:100%;
+}
 
 .container-overlay {
     position: fixed;
@@ -88,6 +91,15 @@ select {
 .menu-entry:hover{
     background:#dddddd;
     cursor:pointer;
+}
+
+.container-video {
+    width:80%;
+}
+.container-video-info {
+    text-align: center;
+    margin-top:10px;
+    font-size: 1.2em;
 }
 
 

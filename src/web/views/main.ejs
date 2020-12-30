@@ -67,7 +67,7 @@
 							</div>
 
 							<% for (let fileInfo of group.files) { %>
-								<div class = "menu-entry" onclick="playVideo('<%= fileInfo['file'] %>');">
+								<div class = "menu-entry" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
 									<%= fileInfo['display'] %>
 								</div>
 							<% } %>
@@ -84,20 +84,33 @@
 				</div>
 
 				<!-- Video player -->
-				<video id = "video-source" width="960" height="540" controls autoplay="true">
-					<source src="/synced_videos/1c_7e_51_a6_cd_3e/20201223/0/205741.mp4" type="video/mp4">
-					Your browser does not support the video tag.
-				</video> 
+				<div class = "container-video">
+					<video id = "video-source" controls autoplay="true"></video>
+
+					<span id = "video-info-noselected">Select a video on the left to start watching</span>
+
+					<div class = "container-video-info">
+						<span id = "video-info-camera"></span> 
+						<span id = "video-info-date"></span> 
+						<span id = "video-info-time"></span> 
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<script type = "text/javascript">
 			// Hide all elements by default
+			$("#video-source").hide();
 			$("#container-overlay").hide();
 			$("#container-settings").hide();
 
-			function playVideo(link) {
-				$('#video-source').attr('src', link);
+			function playVideo(el) {
+				$("#video-source").show();
+				$("#video-info-noselected").hide();
+				$("#video-source").attr('src', $(el).attr("video-file"));
+				$("#video-info-camera").html($(el).attr("camera"));
+				$("#video-info-date").html($(el).attr("video-date"));
+				$("#video-info-time").html($(el).attr("video-time"));
 			}
 
 			function showSettings() {
