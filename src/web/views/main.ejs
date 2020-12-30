@@ -16,24 +16,35 @@
 			<h3>Settings</h3>
 			<table>
 				<tr>
-					<td>
+					<td title = "Choose whether to group by date or device">
 						Grouping
 					</td>
 					<td>
 						<select id = "grouping-select" autocomplete="off">
 							<option value = "date" <% if (settings.grouping == 'date' || settings.grouping === undefined){ %>selected=selected<% } %>>Date</option>
-							<option value = "camera" <% if (settings.grouping == 'camera'){ %>selected=selected<% } %>>Camera</option>
+							<option value = "camera" <% if (settings.grouping == 'camera'){ %>selected=selected<% } %>>Device</option>
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<td title = "Ordering (ascending or descending) for each menu group">
 						Ordering
 					</td>
 					<td>
 						<select id = "sorting-select" autocomplete="off">
 							<option value = "asc" <% if (settings.sorting == 'asc' || settings.sorting === undefined){ %>selected=selected<% } %>>Ascending</option>
 							<option value = "desc" <% if (settings.sorting == 'desc'){ %>selected=selected<% } %>>Descending</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td title = "Groups can be collapsed when you load the page. Click each header to uncollapse">
+						Groups collapsed
+					</td>
+					<td>
+						<select id = "groups-collapsed-select" autocomplete="off">
+							<option value = "no" <% if (settings.groupsCollapsed == 'no' || settings.groupsCollapsed === undefined){ %>selected=selected<% } %>>No</option>
+							<option value = "yes" <% if (settings.groupsCollapsed == 'yes'){ %>selected=selected<% } %>>Yes</option>
 						</select>
 					</td>
 				</tr>
@@ -61,7 +72,7 @@
 				<div id = "container-menu-content" class = "container-menu-content">
 
 					<% for (let group of videoGroups) { %>
-						<div class = "menu-group">
+						<div class = "menu-group<% if (settings.groupsCollapsed == 'yes') { %> hidden<% } %>">
 							<div class = "menu-group-header" onclick = "toggleMenuGroup(this);">
 								<%= group.key %>
 							</div>
@@ -223,7 +234,8 @@
 			function updateSettings() {
 				let grouping = $("#grouping-select").children("option:selected").val();
 				let sorting = $("#sorting-select").children("option:selected").val();
-				window.location.href = changeUrl({"grouping": grouping, "sorting": sorting});
+				let groupsCollapsed = $("#groups-collapsed-select").children("option:selected").val();
+				window.location.href = changeUrl({"grouping": grouping, "sorting": sorting, "groups_collapsed": groupsCollapsed});
 			}
 
 			function changeUrl(changeParams) {

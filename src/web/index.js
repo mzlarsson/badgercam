@@ -15,10 +15,11 @@ app.get('/', function(req, res, next){
 	let grouping = req.query.grouping;
 	let sorting = req.query.sorting;
 	let selected = req.query.selected;
+	let groupCollapsed = req.query.groups_collapsed;
 	
 	// Calculate result
 	let videoGroups = getVideos(grouping, sorting);
-	let settings = {'grouping': grouping, 'sorting': sorting};
+	let settings = {'grouping': grouping, 'sorting': sorting, 'groupsCollapsed': groupCollapsed};
 	
 	// Send response
 	res.render("main", {'videoGroups': videoGroups, 'selected': selected, 'settings': settings});
