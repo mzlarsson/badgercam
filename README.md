@@ -55,7 +55,7 @@ The web page is a simple NodeJS app. If you are into web development, please for
 2. Move into the web source folder. `cd src/web`
 3. Edit `settings.json` according to your needs. See examples in the file for syntax.
 4. Start server by running `node index.js`
-5. Site will be published under [http://localhost:9764](http://localhost:9764).
+5. Site will be published under [http://localhost:9674](http://localhost:9674).
 
 ### Upcoming changes
 The web page is under rapid development atm. Please note that mobile support has not yet been added. I have plans to add live support as well as a "TV" mode too.
