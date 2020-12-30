@@ -105,6 +105,12 @@ video {
     background:#bbbbbb;
 }
 
+
+.container-navigation {
+    display:inline-block;
+    margin-right: 80px;
+}
+
 .container-video {
     width:80%;
 }

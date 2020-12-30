@@ -58,7 +58,7 @@
 					<img src = "/imgs/header-transparent.png" class = "header-image"/>
 				</div>
 
-				<div class = "container-menu-content">
+				<div id = "container-menu-content" class = "container-menu-content">
 
 					<% for (let group of videoGroups) { %>
 						<div class = "menu-group">
@@ -80,6 +80,12 @@
 			<div class = "container-content">
 
 				<div class = "container-controls">
+					<div class = "container-navigation">
+						<input type = "button" value = "<< Prev group" onclick = "playPrevGroup()">
+						<input type = "button" value = "<  Prev video" onclick = "playPrev()">
+						<input type = "button" value = "Next video  >" onclick = "playNext()">
+						<input type = "button" value = "Next group >>" onclick = "playNextGroup()">
+					</div>
 					<input type = "button" value = "Show settings" onclick = "showSettings()">
 				</div>
 
@@ -106,9 +112,43 @@
 			<% } else { %>
 				playVideo($(".menu-entry").first());
 			<% } %>
+			scrollToMenu();
+
+			function playPrev() {
+				let el = $(".menu-entry.selected").prev(".menu-entry");
+				if (el.length != 0) {
+					playVideo(el);
+				} else {
+					playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry").last());
+				}
+				scrollToMenu();
+			}
+
+			function playPrevGroup() {
+				playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry").first());
+				scrollToMenu();
+			}
+
+			function playNext() {
+				let el = $(".menu-entry.selected").next(".menu-entry");
+				if (el.length != 0) {
+					playVideo(el);
+				} else {
+					playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry").first());
+				}
+				scrollToMenu();
+			}
+
+			function playNextGroup() {
+				playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry").first());
+				scrollToMenu();
+			}
 
 			function playVideo(el) {
 				if ($(el).hasClass("selected")) {
+					return;
+				} else if (!el || el.length == 0) {
+					console.log("Warning! Tried to select non-existant menu item!");
 					return;
 				}
 
@@ -122,6 +162,12 @@
 				$(el).addClass("selected");
 				let videoId = $(el).attr("id").substring(10);
 				window.history.pushState("badgercam", "BadgerCam", changeUrl({"selected": videoId}));
+			}
+
+			function scrollToMenu() {
+				let baseScroll = $("#container-menu-content").scrollTop();
+				let scroll = baseScroll + $(".menu-entry.selected").first().offset().top-200;
+				$("#container-menu-content").scrollTop(Math.max(0, scroll));
 			}
 
 			function showSettings() {
