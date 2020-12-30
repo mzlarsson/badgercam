@@ -78,7 +78,7 @@
 							</div>
 
 							<% for (let fileInfo of group.files) { %>
-								<div class = "menu-entry no-select-text" id = "menuentry_<%= fileInfo.id %>" video-id = "<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
+								<div class = "menu-entry no-select-text<% if(fileInfo['marked']){%> marked<% } %>" id = "menuentry_<%= fileInfo.id %>" video-id = "<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
 									<%= fileInfo['display'] %>
 								</div>
 							<% } %>
@@ -112,6 +112,7 @@
 
 					<div class = "container-controls">
 						<input type = "button" value = "Remove video [permanently]" title = "Removes converted video locally but keeps original video file (just in case)" onclick = "removeCurrentVideo();">
+						<input type = "button" value = "Toggle importance mark" title = "Important videos are highlighted in the menu" onclick = "toggleMarkedOnCurrentVideo();">
 					</div>
 				</div>
 			</div>
@@ -186,7 +187,6 @@
 			function removeCurrentVideo() {
 				let currentVideo = $(".menu-entry.selected").first();
 				$.get("/remove", {"videoId": currentVideo.attr("video-id")}, function(data) {
-					console.log(data);
 					if (data.success) {
 						playNext();
 						let removeNode = currentVideo;
@@ -199,6 +199,19 @@
 						alert("Oh noes, got an error! '" + data.message + "' (sorry)");
 					}
 				})
+			}
+
+			function toggleMarkedOnCurrentVideo() {
+				let currentVideo = $(".menu-entry.selected").first();
+				let isMarked = currentVideo.hasClass("marked");
+				let url = (isMarked ? "/unmark" : "/mark");
+				$.get(url, {"videoId": currentVideo.attr("video-id")}, function(data){
+					if (data.success) {
+						currentVideo.toggleClass("marked");
+					} else {
+						alert("Oh noes, got an error! '" + data.message + "' (sorry)");
+					}
+				});
 			}
 
 			function isMenuGroupHidden(el) {

@@ -3,7 +3,7 @@ var app = express();
 var server = http.createServer(app);
 
 const fs = require('fs');
-const { loadBackend, getVideos, removeVideo } = require('./model.js');
+const { loadBackend, getVideos, removeVideo, setVideoMarked } = require('./model.js');
 loadBackend();
 
 app.use(express.static('public'));
@@ -31,6 +31,30 @@ app.get('/remove', function(req, res, next) {
 
 	// Calculate result
 	const [success, message] = removeVideo(id);
+
+	// Send response
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ success: success, message: message }));
+});
+
+app.get('/mark', function(req, res, next) {
+	// Read params
+	let id = req.query.videoId;
+
+	// Calculate result
+	const [success, message] = setVideoMarked(id, true);
+
+	// Send response
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ success: success, message: message }));
+});
+
+app.get('/unmark', function(req, res, next) {
+	// Read params
+	let id = req.query.videoId;
+
+	// Calculate result
+	const [success, message] = setVideoMarked(id, false);
 
 	// Send response
     res.setHeader('Content-Type', 'application/json');

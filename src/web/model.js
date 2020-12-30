@@ -9,10 +9,12 @@ const videoFormat = '.mp4';
 
 var settings = {};
 var videos = [];
+var markedVideos = [];
 
 
 function load() {
     loadSettings();
+    loadRuntimeInfo();
 
     let watcher = chokidar.watch(syncPath)
       .on('add', onFileAdded)
@@ -26,6 +28,28 @@ function loadSettings() {
         settings = JSON.parse(data);
     } catch (e) {
         console.log("Could not load settings: " + e);
+    }
+}
+
+function loadRuntimeInfo() {
+    try {
+        let data = fs.readFileSync('runtime_info.json');
+        let jsonData = JSON.parse(data);
+        markedVideos = jsonData["marked_videos"];
+    } catch (e) {
+        console.log("Could not load runtime info: " + e);
+    }
+}
+
+
+function storeRuntimeInfo() {
+    try {
+        let out = JSON.stringify({
+            "marked_videos": markedVideos
+        }, null, 4);
+        fs.writeFileSync('runtime_info.json', out);
+    } catch (e) {
+        console.log("Could not write runtime info: " + e);
     }
 }
 
@@ -66,6 +90,31 @@ function removeVideoFromDisk(id) {
     }
 }
 
+function setVideoMarked(id, marked) {
+    if (videos.filter(x => x.id === id).length == 0){
+        return [false, "Video does not exist"];
+    }
+
+    if (marked) {
+        if (!markedVideos.includes(id)) {
+            markedVideos.push(id);
+            storeRuntimeInfo();
+            return [true, ""];
+        } else {
+            return [false, "Tried to mark an already marked video"];
+        }
+    } else {
+        let index = markedVideos.indexOf(id);
+        if (index >= 0) {
+            markedVideos.splice(index, 1);
+            storeRuntimeInfo();
+            return [true, ""];
+        } else {
+            return [false, "Tried to unmark an already unmarked video"];
+        }
+    }
+}
+
 function getVideos(grouping, sorting) {
     let sortAscending = (sorting !== "desc");
     if (grouping === "camera") {
@@ -93,6 +142,7 @@ function getVideosByProp(keyFunc, displayFunc, sortPropsItems, sortAscendingGrou
         // Calculate display text
         for (let i in result[key]) {
             result[key][i]['display'] = displayFunc(result[key][i]);
+            result[key][i]["marked"] = markedVideos.includes(result[key][i]["id"]);
         }
 
         // Sort group items by given properties
@@ -197,3 +247,4 @@ function generateId(fileData) {
 exports.loadBackend = load;
 exports.getVideos = getVideos;
 exports.removeVideo = removeVideoFromDisk;
+exports.setVideoMarked = setVideoMarked;
