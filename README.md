@@ -4,10 +4,10 @@ This project started as a way for me to easier handle the cameras I have monitor
 In its current state, the software now syncs all video files from the camera (using telnet and netcat) and displays them in a list of recordings.
 
 ## Required software
-* Python 3
-* Pip
-* VLC
-* netcat
+* Python 3 and Pip (for syncing)
+* NodeJS and npm (for web)
+* VLC (for converting videos)
+* netcat (for syncing)
 
 During development I have tested with *Python v3.8.5*, *VLC 3.0.9.2-0-gd4c1aefe4d (Vetinari)* on an *Ubuntu 20.04* distro. Since this is mainly for my own personal use I have not tested with other versions, please notify me if you find any issues concerning this. Testing that everything runs smoothly on a Windows machine is on the TODO list.
 
@@ -15,14 +15,18 @@ During development I have tested with *Python v3.8.5*, *VLC 3.0.9.2-0-gd4c1aefe4
 1. Clone this repo. `git clone https://github.com/mzlarsson/badgercam.git`
 2. Move into the directory. `cd badgercam`
 3. Install pip dependencies. `pip install -r src/requirements.txt`
-4. Yay. We are ready to go!
+4. Move into web directory. `cd src/web`
+5. Install required node modules. `npm install`
+6. Yay. We are ready to go!
 
-Note: If you are doing development it might be nice to create a virtual environment and activating it before running pip install. If does sounds like mambo jambo to you, ignore it.
+Note: If you are doing development it might be nice to create a virtual environment and activating it before running pip install. If that sounds like mambo jambo to you, ignore it.
 
 ### TL;DR
     git clone https://github.com/mzlarsson/badgercam.git
     cd badgercam
-    pip install -r src/requirements.txt 
+    pip install -r src/requirements.txt
+    cd src/web
+    npm install 
 
 ## Running the sync manually
 1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
@@ -45,7 +49,16 @@ Example usage:
 Note: The default settings for --sync-folder assumes you are running this script from the src folder of the repository. If you are not, please adjust that input option to make sure the videos are synced to your desired location.
 
 ## Running the web page
-TODO. The development of the web page is in progress.
+The web page is a simple NodeJS app. If you are into web development, please forgive me. Sometimes the code quality falls rather low due to lack of experience of professional JS and CSS. In most cases the code will work fine though. Anyhoot, here is how you can run it.
+
+1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
+2. Move into the web source folder. `cd src/web`
+3. Edit `settings.json` according to your needs. See examples in the file for syntax.
+4. Start server by running `node index.js`
+5. Site will be published under [http://localhost:9764](http://localhost:9764).
+
+### Upcoming changes
+The web page is under rapid development atm. Please note that mobile support has not yet been added. I have plans to add live support as well as a "TV" mode too.
 
 ## Licensing
 This code is published under the MIT license.
