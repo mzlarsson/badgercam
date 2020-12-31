@@ -58,7 +58,7 @@ The web page is a simple NodeJS app. If you are into web development, please for
 5. Site will be published under [http://localhost:9674](http://localhost:9674).
 
 ### Upcoming changes
-The web page is under rapid development atm. Please note that manual sync and mobile support has not yet been added. I have plans to add live support as well as a "TV" mode too.
+The web page is under rapid development atm. Please note that support for manual sync has not yet been added (please use automatic cronjobs or similar in the meantime). I have plans to add live support as well as a "TV" mode too.
 
 ### Screenshot(s) of webpage
 ![Webpage in action, 2020-12-31](documentation/screenshot_20201231.png)

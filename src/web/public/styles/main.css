@@ -148,7 +148,74 @@ video {
 }
 
 
-/* Mobile screen */
+/* Mobile screen, portrait AND landscape mode */
+@media only screen and (max-width: 600px), (max-height: 600px) {
+
+    /* Make buttons easier to hit */
+    button {
+        padding: 5px 12px;
+    }
+
+    /* Remove logo and give space to menu */
+    .container-header {
+        display: none;
+    }
+    .container-menu-content {
+        max-height:96%;
+    }
+
+    /* Remove text in navigation and options buttons */
+    .container-controls button span {
+        display: none;
+    }
+
+    /* Use space at top of screen more efficiently */
+    .container-controls {
+        margin-top:5px;
+    }
+}
+
+/* Mobile screen, portrait mode */
 @media only screen and (max-width: 600px) {
 
+    /* Make menu go horizontal, not vertical */
+    .container-main {
+        display:inherit;
+    }
+
+    .container-menu {
+        min-height: unset;
+        border-right:unset;
+        border-bottom:2px solid #cccccc;
+    }
+
+    .container-menu-content {
+        max-height: unset;
+        overflow-y: unset;
+        max-width:100%;
+        overflow-x:scroll;
+        white-space:nowrap;
+    }
+    .menu-group, .menu-group-header, .menu-entry {
+        display:inline-block;
+    }
+    .menu-group {
+        margin-bottom: 0px;
+    }
+}
+
+
+/* Mobile screen, landscape mode */
+@media only screen and (max-height: 600px) {
+
+    /* Make sure video fits on screen when in landscape mode */
+    video {
+        width:unset;
+        height: 75%;
+    }
+
+    /* Center video */
+    .container-video {
+        text-align: center;
+    }
 }

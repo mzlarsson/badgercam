@@ -96,30 +96,30 @@
 					<div class = "container-controls">
 						<div class = "container-navigation">
 							<button onclick = "playPrevGroup()">
-								<i class="fas fa-fast-backward"></i> Prev group
+								<i class="fas fa-fast-backward"></i> <span>Prev group</span>
 							</button>
 							<button onclick = "playPrev()">
-								<i class="fas fa-step-backward"></i> Prev video
+								<i class="fas fa-step-backward"></i> <span>Prev video</span>
 							</button>
 							<button onclick = "playNext()">
-								Next video <i class="fas fa-step-forward"></i>
+								<span>Next video</span> <i class="fas fa-step-forward"></i>
 							</button>
 							<button onclick = "playNextGroup()">
-								Next group <i class="fas fa-fast-forward"></i>
+								<span>Next group</span> <i class="fas fa-fast-forward"></i>
 							</button>
 						</div>
 						<div class = "container-options">
 							<button title = "Removes converted video locally but keeps original video file (just in case)" onclick = "removeCurrentVideo();">
-								<i class="fas fa-trash-alt"></i> Remove
+								<i class="fas fa-trash-alt"></i> <span>Remove</span>
 							</button>
 							<button title = "Important videos are highlighted in the menu" onclick = "toggleMarkedOnCurrentVideo();">
 								<i id = "star-button-icon" class="far fa-star"></i> <span id = "star-button-text">Star/Unstar</span>
 							</button>
 							<button onclick = "doSync()">
-								<i class="fas fa-sync"></i> Manual sync
+								<i class="fas fa-sync"></i> <span>Manual sync</span>
 							</button>
 							<button onclick = "showSettings()">
-								<i class="fas fa-cog"></i> Settings
+								<i class="fas fa-cog"></i> <span>Settings</span>
 							</button>
 						</div>
 					</div>
@@ -134,6 +134,8 @@
 							<span id = "video-info-time"></span> 
 						</div>
 					</div>
+
+					<div id = "switch-to-landscape-info"></div>
 				</div>
 			</div>
 		</div>
@@ -149,6 +151,9 @@
 				playVideo($(".menu-entry").first());
 			<% } %>
 			scrollToMenu();
+
+			window.addEventListener("orientationchange", handleOrientationChange, false);
+			handleOrientationChange();	// Trigger on load too
 
 			function playPrev() {
 				let el = $(".menu-entry.selected").prev(".menu-entry");
@@ -263,9 +268,16 @@
 			}
 
 			function scrollToMenu() {
-				let baseScroll = $("#container-menu-content").scrollTop();
-				let scroll = baseScroll + $(".menu-entry.selected").first().offset().top-200;
-				$("#container-menu-content").scrollTop(Math.max(0, scroll));
+				let isPortrait = (window.orientation == 0);
+				if (isPortrait) {	// Scroll horizontally
+					let baseScroll = $("#container-menu-content").scrollLeft();
+					let scroll = baseScroll + $(".menu-entry.selected").first().offset().left-100;
+					$("#container-menu-content").scrollLeft(Math.max(0, scroll));
+				} else {			// Scroll vertically
+					let baseScroll = $("#container-menu-content").scrollTop();
+					let scroll = baseScroll + $(".menu-entry.selected").first().offset().top-150;
+					$("#container-menu-content").scrollTop(Math.max(0, scroll));
+				}
 			}
 
 			function doSync() {
@@ -280,6 +292,12 @@
 			function closeSettings() {
 				$("#container-overlay").hide();
 				$("#container-settings").hide();
+			}
+
+			function handleOrientationChange(event) {
+				let isPortrait = (window.orientation == 0);
+				$("#switch-to-landscape-info").html(isPortrait ? "Try to use landscape mode for a better view!" : "");
+				setTimeout(scrollToMenu, 200);
 			}
 
 			function updateSettings() {
