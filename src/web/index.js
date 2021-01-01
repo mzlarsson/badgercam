@@ -1,9 +1,10 @@
 var express = require('express'), http = require('http');
 var app = express();
 var server = http.createServer(app);
+var io = require('socket.io')(server);
 
 const fs = require('fs');
-const { loadBackend, getVideos, removeVideo, setVideoMarked } = require('./model.js');
+const { loadBackend, getVideos, removeVideo, setVideoMarked, runManualSync } = require('./model.js');
 loadBackend();
 
 app.use(express.static('public'));
@@ -61,6 +62,16 @@ app.get('/unmark', function(req, res, next) {
     res.end(JSON.stringify({ success: success, message: message }));
 });
 
+io.on('connection', (socket) => {
+	console.log('A user connected');
+	socket.on('manual_sync', () => {
+		console.log("Triggering manual sync");
+		let onStartNewSync = () => io.emit('starting_new_sync');
+		let onNewUpdate = (msg) => io.emit('sync_update', msg);
+		runManualSync(onStartNewSync, onNewUpdate);
+
+	});
+});
 
 server.listen(9674, "0.0.0.0", function(){
 	console.log('Server started. Port 9674');

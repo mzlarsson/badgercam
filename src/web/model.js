@@ -3,6 +3,8 @@ const chokidar = require('chokidar');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {PythonShell} = require('python-shell');
+const arped = require('arped');
 
 const syncPath = "public/synced_videos";
 const videoFormat = '.mp4';
@@ -10,6 +12,8 @@ const videoFormat = '.mp4';
 var settings = {};
 var videos = [];
 var markedVideos = [];
+
+var isRunningSync = false;
 
 
 function load() {
@@ -237,6 +241,107 @@ function generateId(fileData) {
 
 
 
+function runManualSync(onStartNewSync, onNewUpdate) {
+
+    if (isRunningSync) {
+        console.log("Another sync is already running. Skipping...");
+        return;
+    }
+
+    isRunningSync = true;
+    onStartNewSync();
+
+    // Reload settings to make sure no new devices were added
+    // or removed since we started the server
+    loadSettings();
+
+    if (!settings.devices){
+        onNewUpdate("Critical error: No devices found. Please update settings.json in web server folder");
+        isRunningSync = false;
+        return;
+    }
+
+    let arpTable = arped.parse(arped.table());
+    let deviceArgs = [];
+    for (const key in settings.devices) {
+        args = []
+
+        let addArgIfExist = (prop, arg) => {
+            if (prop in settings.devices[key]) {
+                args.push(arg);
+                args.push(settings.devices[key][prop]);
+            }
+        };
+
+        let ip = undefined;
+        let interface = ("interface" in settings.devices[key] ? settings.devices[key].interface : "wlan0");
+        if (interface in arpTable.Devices) {
+            ip = arpTable.Devices[interface].MACs[key];
+        }
+
+        let name = ("name" in settings.devices[key] ? settings.devices[key].name : "Unnamed device");
+        if (ip) {
+            onNewUpdate("Using IP address " + ip + " for device with MAC address " + key + " (" + name + ")");
+        } else {
+            onNewUpdate("Could not find IP address for device with MAC address " + key + " (" + name + "). Skipping it...");
+            continue;
+        }
+        onNewUpdate("");    // Just trigger newline. Little but hacky, but meh xD
+
+        args.push(ip);
+        addArgIfExist("telnet_user", "--telnet-user");
+        addArgIfExist("telnet_password", "--telnet-pass");
+        addArgIfExist("interface", "--interface");
+        addArgIfExist("remote_folder", "--remote-folder");
+        args.push("--sync-folder");
+        args.push(syncPath);
+
+        deviceArgs.push(args);
+    }
+
+    onNewUpdate("Running update of " + deviceArgs.length + " device" + (deviceArgs.length != 1 ? "s" : ""));
+
+    let syncNextDevice = () => {
+        if (deviceArgs.length > 0) {
+            let args = deviceArgs.shift();
+            runSyncOfDevice(args, onNewUpdate, syncNextDevice);
+        } else {
+            isRunningSync = false;
+            onNewUpdate("All devices updated");
+            onNewUpdate("");
+        }
+    };
+    syncNextDevice();
+}
+
+function runSyncOfDevice(args, onNewUpdate, onDone) {
+
+    let options = {
+        mode: 'text',
+        pythonOptions: ['-u'], // get print results in real-time
+        scriptPath: '../sync/',
+        args: args
+    };
+
+    let pyshell = new PythonShell('sync.py', options);
+    pyshell.on('message', onNewUpdate);
+
+    // end the input stream and allow the process to exit
+    pyshell.end(function (err,code,signal) {
+        console.log("Sync of device ended, result:")
+        if (err) {
+            console.log(err);
+            onNewUpdate("Critical error: " + err);
+        }
+        console.log('Exit code: ' + code + "\tExit signal: " + signal);
+        console.log("==============================");
+
+        onNewUpdate("Sync of device finished");
+        onDone();
+    });
+}
+
+
 
 
 
@@ -248,3 +353,4 @@ exports.loadBackend = load;
 exports.getVideos = getVideos;
 exports.removeVideo = removeVideoFromDisk;
 exports.setVideoMarked = setVideoMarked;
+exports.runManualSync = runManualSync;
