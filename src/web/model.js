@@ -273,20 +273,22 @@ function runManualSync(onStartNewSync, onNewUpdate) {
             }
         };
 
-        let ip = undefined;
-        let interface = ("interface" in settings.devices[key] ? settings.devices[key].interface : "wlan0");
-        if (interface in arpTable.Devices) {
-            ip = arpTable.Devices[interface].MACs[key];
-        }
+        let ip = settings.devices[key].ip;
+        if (ip === undefined) {
+            onNewUpdate("Auto-detecting IP address for device " + key + "...");
+            let interface = ("interface" in settings.devices[key] ? settings.devices[key].interface : "wlan0");
+            if (interface in arpTable.Devices) {
+                ip = arpTable.Devices[interface].MACs[key];
+            }
 
-        let name = ("name" in settings.devices[key] ? settings.devices[key].name : "Unnamed device");
-        if (ip) {
-            onNewUpdate("Using IP address " + ip + " for device with MAC address " + key + " (" + name + ")");
-        } else {
-            onNewUpdate("Could not find IP address for device with MAC address " + key + " (" + name + "). Skipping it...");
-            continue;
+            if (ip === undefined) {
+                let name = ("name" in settings.devices[key] ? settings.devices[key].name : "Unnamed device");
+                onNewUpdate("Could not find IP address for device with MAC address " + key + " (" + name + "). Skipping it...");
+                continue;
+            } else {
+                onNewUpdate("IP address found! Using " + ip);
+            }
         }
-        onNewUpdate("");    // Just trigger newline. Little but hacky, but meh xD
 
         args.push(ip);
         addArgIfExist("telnet_user", "--telnet-user");
@@ -299,6 +301,7 @@ function runManualSync(onStartNewSync, onNewUpdate) {
         deviceArgs.push(args);
     }
 
+    onNewUpdate("");    // Just trigger newline. Little but hacky, but meh xD
     onNewUpdate("Running update of " + deviceArgs.length + " device" + (deviceArgs.length != 1 ? "s" : ""));
 
     let syncNextDevice = () => {

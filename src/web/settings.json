@@ -5,6 +5,7 @@
             "telnet_user": "root",
             "telnet_password": "SOME_PASSWORD_HERE",
             "interface": "wlp2s0",
+            "ip": "192.168.100.2",
             "remote_folder": "/mnt/mmc1"
         }
     }

@@ -63,6 +63,10 @@ The web page is under rapid development atm. It might be buggy sometimes. I have
 ### Screenshot(s) of webpage
 ![Webpage in action, 2020-12-31](documentation/screenshot_20201231.png)
 
+## Known issues
+### Auto-detecting IP addresses
+The software auto detects the IP address by looking at the local ARP table of the server (a little lazy, I know). This means that if there have been no communication between these devices, the auto-detect IP feature will come up short. To counter this either ping the device from the server before syncing or add the IP manually in settings.json (see file for example).
+
 ## Licensing
 This code is published under the MIT license.
 
