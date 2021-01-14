@@ -18,6 +18,11 @@ video {
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
+.container-centered {
+    margin-left:auto;
+    margin-right:auto;
+}
+
 .container-overlay {
     position: fixed;
     left:0;
@@ -169,6 +174,30 @@ video {
     font-size: 1.2em;
 }
 
+.container-video {
+    position:relative;
+}
+
+.container-video-loading {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index:1000;
+}
+.container-video-loading div {
+    position:absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    width:100%;
+    text-align: center;
+    color:white;
+    font-size:2em;
+}
+
 
 /* Mobile screen, portrait AND landscape mode */
 @media only screen and (max-width: 600px), (max-height: 600px) {
@@ -200,6 +229,12 @@ video {
 /* Mobile screen, portrait mode */
 @media only screen and (max-width: 600px) {
 
+    /* Make sure buttons don't become two lines */
+    /* NOTE: This fix wont work for small enough screens */
+    button {
+        padding: 5px 10px;
+    }
+
     /* Make menu go horizontal, not vertical */
     .container-main {
         display:inherit;
@@ -214,7 +249,7 @@ video {
     .container-menu-content {
         max-height: unset;
         overflow-y: unset;
-        max-width:100%;
+        max-width:98%;
         overflow-x:scroll;
         white-space:nowrap;
     }
@@ -223,6 +258,10 @@ video {
     }
     .menu-group {
         margin-bottom: 0px;
+    }
+    .container-content-wrapper {
+        width:96%;
+        margin-left:2%;
     }
 }
 

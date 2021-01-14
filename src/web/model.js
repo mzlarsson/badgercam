@@ -119,6 +119,20 @@ function setVideoMarked(id, marked) {
     }
 }
 
+function getDevices() {
+    let res = [];
+    if (settings.devices) {
+        for (let addr in settings.devices) {
+            res.push({
+                'addr': addr,
+                'name': getDeviceName(addr)
+            });
+        }
+    }
+
+    return res;
+}
+
 function getVideos(grouping, sorting) {
     let sortAscending = (sorting !== "desc");
     if (grouping === "camera") {
@@ -266,10 +280,23 @@ function runManualSync(onStartNewSync, onNewUpdate) {
     for (const key in settings.devices) {
         args = []
 
-        let addArgIfExist = (prop, arg) => {
-            if (prop in settings.devices[key]) {
+        let addArgIfExist = (arg, propPath) => {
+            let tmp = settings.devices[key];
+            let error = false;
+            propPath = Array.isArray(propPath) ? propPath : [propPath];
+
+            for (let prop of propPath) {
+                if (prop in tmp) {
+                    tmp = tmp[prop];
+                } else {
+                    error = true;
+                    break;
+                }
+            }
+
+            if (!error){
                 args.push(arg);
-                args.push(settings.devices[key][prop]);
+                args.push(tmp);
             }
         };
 
@@ -291,10 +318,10 @@ function runManualSync(onStartNewSync, onNewUpdate) {
         }
 
         args.push(ip);
-        addArgIfExist("telnet_user", "--telnet-user");
-        addArgIfExist("telnet_password", "--telnet-pass");
-        addArgIfExist("interface", "--interface");
-        addArgIfExist("remote_folder", "--remote-folder");
+        addArgIfExist("--telnet-user", ["telnet", "user"]);
+        addArgIfExist("--telnet-pass", ["telnet", "password"]);
+        addArgIfExist("--interface", "interface");
+        addArgIfExist("--remote-folder", "remote_folder");
         args.push("--sync-folder");
         args.push(syncPath);
 
@@ -354,6 +381,7 @@ function runSyncOfDevice(args, onNewUpdate, onDone) {
 /* -------- EXPORT FUNCTIONS --------- */
 exports.loadBackend = load;
 exports.getVideos = getVideos;
+exports.getDevices = getDevices;
 exports.removeVideo = removeVideoFromDisk;
 exports.setVideoMarked = setVideoMarked;
 exports.runManualSync = runManualSync;

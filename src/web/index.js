@@ -4,7 +4,7 @@ var server = http.createServer(app);
 var io = require('socket.io')(server);
 
 const fs = require('fs');
-const { loadBackend, getVideos, removeVideo, setVideoMarked, runManualSync } = require('./model.js');
+const { loadBackend, getDevices, getVideos, removeVideo, setVideoMarked, runManualSync } = require('./model.js');
 loadBackend();
 
 app.use(express.static('public'));
@@ -24,6 +24,17 @@ app.get('/', function(req, res, next){
 	
 	// Send response
 	res.render("main", {'videoGroups': videoGroups, 'selected': selected, 'settings': settings});
+});
+
+app.get('/live', function(req, res, next){
+	// Read params
+	let selectedDevice = req.query.device;
+	
+	// Calculate result
+	let devices = getDevices();
+	
+	// Send response
+	res.render("live", {'devices': devices, 'selectedDevice': selectedDevice});
 });
 
 app.get('/remove', function(req, res, next) {
