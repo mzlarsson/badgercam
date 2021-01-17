@@ -178,24 +178,10 @@ video {
     position:relative;
 }
 
-.container-video-loading {
-    position:absolute;
-    top:0;
-    left:0;
+#live-video {
+    max-width:1440px;
+    max-height: 810px;
     width:100%;
-    height:100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index:1000;
-}
-.container-video-loading div {
-    position:absolute;
-    top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
-    width:100%;
-    text-align: center;
-    color:white;
-    font-size:2em;
 }
 
 

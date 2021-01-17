@@ -3,7 +3,21 @@
         "1c:7e:51:a6:cd:3e": {
             "name": "Pelle",
             "interface": "wlp2s0",
-            "ip": "192.168.100.134",
+            "ip": "192.168.101.118",
+            "remote_folder": "/mnt/mmc1",
+            "telnet": {
+                "user": "root",
+                "password": "SOME_PASSWORD_HERE"
+            },
+            "rtsp": {
+                "port": 554,
+                "path": "video1"
+            }
+        },
+        "1c:7e:51:aa:bb:cc": {
+            "name": "AnnanKamera",
+            "interface": "wlp2s0",
+            "ip": "192.168.101.163",
             "remote_folder": "/mnt/mmc1",
             "telnet": {
                 "user": "root",

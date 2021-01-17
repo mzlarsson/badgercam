@@ -3,12 +3,22 @@ var app = express();
 var server = http.createServer(app);
 var io = require('socket.io')(server);
 
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
+const request = require('request');
+
 const fs = require('fs');
-const { loadBackend, getDevices, getVideos, removeVideo, setVideoMarked, runManualSync } = require('./model.js');
+const { loadBackend, getDevices, setLiveDevices, getVideos, removeVideo, setVideoMarked, runManualSync } = require('./model.js');
 loadBackend();
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
+
+// Set up ports to use
+const webPort = 9674;
+const livePort = 9675;
 
 
 app.get('/', function(req, res, next){
@@ -28,7 +38,7 @@ app.get('/', function(req, res, next){
 
 app.get('/live', function(req, res, next){
 	// Read params
-	let selectedDevice = req.query.device;
+	let selectedDevice = req.query.live_device;
 	
 	// Calculate result
 	let devices = getDevices();
@@ -37,9 +47,32 @@ app.get('/live', function(req, res, next){
 	res.render("live", {'devices': devices, 'selectedDevice': selectedDevice});
 });
 
-app.get('/remove', function(req, res, next) {
+app.get('/livestream', function(req, res, next){
+	let url = `http://localhost:${livePort}/live`;
+	let stream = request.get(url).on('error', (e) => {
+		console.log(`Error piping live stream (${url}), sending static image instead`);
+		res.setHeader('Content-Type', 'image/png');
+		res.sendFile(`${__dirname}/public/imgs/no-video.png`);
+	});
+	req.pipe(stream).pipe(res);
+});
+
+app.post("/setlivemode", function(req, res, next){
 	// Read params
-	let id = req.query.videoId;
+	let devices = req.body.devices;
+	
+	// Calculate result
+	let deviceList = (devices !== undefined ? devices.split(",") : undefined);
+	const [success, message] = setLiveDevices(deviceList, livePort);
+
+	// Send response
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ success: success, message: message }));
+});
+
+app.post('/remove', function(req, res, next) {
+	// Read params
+	let id = req.body.videoId;
 
 	// Calculate result
 	const [success, message] = removeVideo(id);
@@ -49,9 +82,9 @@ app.get('/remove', function(req, res, next) {
     res.end(JSON.stringify({ success: success, message: message }));
 });
 
-app.get('/mark', function(req, res, next) {
+app.post('/mark', function(req, res, next) {
 	// Read params
-	let id = req.query.videoId;
+	let id = req.body.videoId;
 
 	// Calculate result
 	const [success, message] = setVideoMarked(id, true);
@@ -61,9 +94,9 @@ app.get('/mark', function(req, res, next) {
     res.end(JSON.stringify({ success: success, message: message }));
 });
 
-app.get('/unmark', function(req, res, next) {
+app.post('/unmark', function(req, res, next) {
 	// Read params
-	let id = req.query.videoId;
+	let id = req.body.videoId;
 
 	// Calculate result
 	const [success, message] = setVideoMarked(id, false);
@@ -84,6 +117,6 @@ io.on('connection', (socket) => {
 	});
 });
 
-server.listen(9674, "0.0.0.0", function(){
-	console.log('Server started. Port 9674');
+server.listen(webPort, "0.0.0.0", function(){
+	console.log(`Server started. Port ${webPort}`);
 });

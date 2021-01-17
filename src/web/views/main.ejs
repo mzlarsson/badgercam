@@ -230,7 +230,7 @@
 
 			function removeCurrentVideo() {
 				let currentVideo = $(".menu-entry.selected").first();
-				$.get("/remove", {"videoId": currentVideo.attr("video-id")}, function(data) {
+				$.post("/remove", {"videoId": currentVideo.attr("video-id")}, (data) => {
 					if (data.success) {
 						playNext();
 						let removeNode = currentVideo;
@@ -249,7 +249,7 @@
 				let currentVideo = $(".menu-entry.selected").first();
 				let isMarked = currentVideo.hasClass("marked");
 				let url = (isMarked ? "/unmark" : "/mark");
-				$.get(url, {"videoId": currentVideo.attr("video-id")}, function(data){
+				$.post(url, {"videoId": currentVideo.attr("video-id")}, (data) => {
 					if (data.success) {
 						currentVideo.toggleClass("marked");
 						updateStarButton();

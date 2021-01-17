@@ -6,6 +6,8 @@ const crypto = require('crypto');
 const {PythonShell} = require('python-shell');
 const arped = require('arped');
 
+const live = require('./live/live');
+
 const syncPath = "public/synced_videos";
 const videoFormat = '.mp4';
 
@@ -131,6 +133,46 @@ function getDevices() {
     }
 
     return res;
+}
+
+function setLiveDevices(deviceIds, port) {
+    let success = true;
+    let errorMsg = "";
+
+    if (deviceIds === undefined){
+        try{
+            console.log("Stopping live stream");
+            live.stopStream();
+        }
+        catch(e){
+            console.log("Error! " + e);
+            success = false;
+            errorMsg = e;
+        }
+    }
+    else {
+        let streams = [];
+        for (let deviceId in settings.devices){
+            if (deviceIds === "all" || deviceIds.includes(deviceId)){
+                let device = settings.devices[deviceId];
+                if ("rtsp" in device){
+                    streams.push(`rtsp://${device.ip}:${device.rtsp.port}/${device.rtsp.path}`);
+                }
+            }
+        }
+
+        try{
+            console.log("Starting live stream with the following streams: " + streams);
+            live.showLive(streams, port);
+        }
+        catch(e){
+            console.log("Error! " + e);
+            success = false;
+            errorMsg = e;
+        }
+    }
+
+    return [success, errorMsg];
 }
 
 function getVideos(grouping, sorting) {
@@ -385,3 +427,4 @@ exports.getDevices = getDevices;
 exports.removeVideo = removeVideoFromDisk;
 exports.setVideoMarked = setVideoMarked;
 exports.runManualSync = runManualSync;
+exports.setLiveDevices = setLiveDevices;
