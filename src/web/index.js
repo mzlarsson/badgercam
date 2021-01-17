@@ -50,7 +50,7 @@ app.get('/live', function(req, res, next){
 app.get('/livestream', function(req, res, next){
 	let url = `http://localhost:${livePort}/live`;
 	let stream = request.get(url).on('error', (e) => {
-		console.log(`Error piping live stream (${url}), sending static image instead`);
+		console.log(`Error piping live stream (${url}), sending static image instead. [Err: ${e}]`);
 		res.setHeader('Content-Type', 'image/png');
 		res.sendFile(`${__dirname}/public/imgs/no-video.png`);
 	});
