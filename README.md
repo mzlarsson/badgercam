@@ -46,7 +46,7 @@ wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/docker-compose.y
 nano settings.json
 
 # Build dockerfile and run it
-docker-compose up
+docker-compose up -d
 ```
 
 ## Required software
