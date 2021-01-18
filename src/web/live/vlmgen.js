@@ -68,7 +68,7 @@ function generateBackground(setup) {
 new   bg broadcast enabled
 setup bg input ${backgroundFile}
 setup bg option image-duration=-1
-setup bg output #transcode{sfilter=mosaic{width=${setup.width},height=${setup.height},cols=${setup.gridSize},rows=${setup.gridSize},position=1,order="${orderArg}",keep-aspect-ratio=enabled,keep-picture=1},vcodec=MJPG,venc=ffmpeg{strict=1},fps=${setup.fps}}:duplicate{dst=std{access=http{mime=multipart/x-mixed-replace;boundary=--7b3cc56e5f51db803f790dad720ed50a},mux=mpjpeg,dst=:${setup.outPort}/${setup.outPath}},dst=display}
+setup bg output #transcode{sfilter=mosaic{width=${setup.width},height=${setup.height},cols=${setup.gridSize},rows=${setup.gridSize},position=1,order="${orderArg}",keep-aspect-ratio=enabled,keep-picture=1},vcodec=MJPG,venc=ffmpeg{strict=1},fps=${setup.fps}}:std{access=http{mime=multipart/x-mixed-replace;boundary=--7b3cc56e5f51db803f790dad720ed50a},mux=mpjpeg,dst=:${setup.outPort}/${setup.outPath}}
     `;
 
     // #transcode{vcodec=MJPG,venc=ffmpeg{strict=1}}:standard{access=http{mime=multipart/x-mixed-replace;boundary=--7b3cc56e5f51db803f790dad720ed50a},mux=mpjpeg,dst=:8080/}
