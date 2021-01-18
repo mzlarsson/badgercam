@@ -16,6 +16,8 @@ The following sections will explain how to manually setup the project. However, 
 Too long? I made a script for you! (not 100% tested though)
 ```bash
 # Get docker and docker-compose, skip if you already have it.
+# Note: The below example uses a Debian-based system.
+# Security note: See https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script before proceeding.
 curl -fsSL https://get.docker.com | sudo -E bash -
 sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
