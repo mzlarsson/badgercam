@@ -10,8 +10,8 @@ RUN apt-get install -y openssh-server git netcat apt-utils curl iproute2 vim
 # Install VLC
 RUN apt-get install -y vlc
 
-# Install python
-RUN apt-get install -y python3 python3-pip
+# Install python and required packages
+RUN apt-get install -y python3 python3-netifaces
 
 # Install node
 RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
@@ -27,10 +27,6 @@ WORKDIR /home/badger
 # Clone repo
 RUN git clone https://github.com/mzlarsson/badgercam.git
 WORKDIR /home/badger/badgercam
-
-# Install python dependencies
-WORKDIR /home/badger/badgercam/src
-RUN pip3 install -r requirements.txt
 
 # Install npm dependencies
 WORKDIR /home/badger/badgercam/src/web

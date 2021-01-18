@@ -5,7 +5,6 @@ import os
 import netifaces as ni
 import subprocess as sp
 import argparse
-from getmac import get_mac_address
 from time import sleep
 
 
@@ -113,25 +112,11 @@ def main():
     parser.add_argument('--telnet-user', type=str, default='root', help="User to supply to Telnet session")
     parser.add_argument('--telnet-pass', type=str, default='', help="Password to supply to Telnet session")
     parser.add_argument('--interface', type=str, default='wlan0', help="Interface used for network communication with camera (used to retrieve current IP address)")
-    parser.add_argument('--no-device-prefix', action='store_true', help="Do not group synced material in folder named by device mac address")
     args = parser.parse_args()
 
     if args.interface not in ni.interfaces():
         print("Could not find given network interface '{}'.\n  Available interfaces are: {}".format(args.interface, ni.interfaces()))
         return
-
-    if not args.no_device_prefix:
-        device_mac = get_mac_address(ip=args.host, network_request=True)
-        tries = 0
-        while device_mac == "00:00:00:00:00:00" and tries < 10:
-            sleep(0.5)
-            device_mac = get_mac_address(ip=args.host, network_request=True)
-            tries += 1
-
-        if not device_mac or device_mac == "00:00:00:00:00:00":
-            print("Unable to find MAC address of given device. Make sure you entered a valid hostname/IP address")
-            return
-        args.sync_folder = os.path.join(args.sync_folder, device_mac.replace(':', '_'))
 
     do_sync(args.host, args.remote_folder, args.sync_folder, args.telnet_user, args.telnet_pass, args.interface)
 

@@ -76,7 +76,6 @@ Note: If you are doing development it might be nice to create a virtual environm
     **--telnet-user [username]**: User to login as on telnet. Default: "root"
     **--telnet-pass [password]**: Password to use for telnet. Default: ""
     **--interface**: Name of interface card connected to network you want to use. Default: "wlan0"
-    **--no-device-prefix**: Don't group synced material in folder of device mac address. Default: false.
 4. You can now find the downloaded and converted files in the folder you specified with --sync-folder. By default this will be in the *web/public/synced_videos* folder (relative to where command was issued).
 
 Example usage:

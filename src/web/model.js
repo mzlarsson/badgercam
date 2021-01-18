@@ -8,6 +8,7 @@ const arped = require('arped');
 
 const live = require('./live/live');
 
+// Don't use trailing slash for syncPath
 const syncPath = "public/synced_videos";
 const videoFormat = '.mp4';
 
@@ -359,13 +360,14 @@ function runManualSync(onStartNewSync, onNewUpdate) {
             }
         }
 
+        let deviceFolder = key.replace(/:/g, "_");
         args.push(ip);
         addArgIfExist("--telnet-user", ["telnet", "user"]);
         addArgIfExist("--telnet-pass", ["telnet", "password"]);
         addArgIfExist("--interface", "interface");
         addArgIfExist("--remote-folder", "remote_folder");
         args.push("--sync-folder");
-        args.push(syncPath);
+        args.push(`${syncPath}/${deviceFolder}`);
 
         deviceArgs.push(args);
     }
