@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  badgercam:
+    build: .
+    network_mode: "host"
+#    ports:
+#      - "9674:9674"
+    volumes:
+      - /opt/badgercam/settings.json:/home/badger/badgercam/src/web/settings.json
+      - /opt/badgercam/synced_videos:/home/badger/badgercam/src/web/public/synced_videos

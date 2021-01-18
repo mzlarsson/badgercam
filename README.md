@@ -3,6 +3,43 @@ This project started as a way for me to easier handle the cameras I have monitor
 
 In its current state, the software now syncs all video files from the camera (using telnet and netcat) and displays them in a list of recordings.
 
+## Easy setup
+The following sections will explain how to manually setup the project. However, I took the time to create a `Docker` container to make it so much easier instead. If you are more interested in the manual setup and not docker, skip the rest of this section. Another sidenote: At the moment this dockerfile is not optimized at all meaning its size is rather large. Updates for improving this will come shortly.
+
+* Make sure you have `Docker` and `Docker compose` installed
+* Download the `Dockerfile` and `docker-compose.yaml` to your device
+* Edit the `docker-compose.yaml` so that the volumes match your requirements (we need one config file and one folder to sync videos to)
+* Edit the config file from previous step to match your devices. See [the example file](https://github.com/mzlarsson/badgercam/blob/main/src/web/settings.json) for what data is needed.
+* Run `docker-compose up` to build the image and start a container.
+* Woop woop! All done! Visit the webpage [here](http://localhost:9674).
+
+Too long? I made a script for you! (not 100% tested though)
+```bash
+# Get docker and docker-compose, skip if you already have it.
+curl -fsSL https://get.docker.com | sudo -E bash -
+sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Create folders for data
+sudo mkdir /opt/badgercam
+sudo chown $(whoami):$(whoami) /opt/badgercam
+
+# Fill with basic content (sync folder and settings file)
+cd /opt/badgercam
+mkdir synced_videos
+wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/src/web/settings.json
+
+# Download docker configs
+wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/Dockerfile
+wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/docker-compose.yaml
+
+# Prompt user to edit settings
+nano settings.json
+
+# Build dockerfile and run it
+docker-compose up
+```
+
 ## Required software
 * Python 3 and Pip (for syncing)
 * NodeJS and npm (for web)
