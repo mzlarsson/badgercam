@@ -18,24 +18,27 @@
             <!-- Main content -->
             <div class = "container-content">
 
-                <div class = "container-content-wrapper container-centered">
+                <div class = "container-content-wrapper container-content-live-wrapper container-centered">
                     <!-- Controls -->
-                    <div class = "container-controls">
+                    <div class = "container-controls container-controls-live">
                         <div class = "container-navigation">
-                            <select id = "selector_device" onchange = "updateStream();">
-                                <option value = "none" <% if(selectedDevice === "none"){ %>selected<% } %>>Stop stream</option>
-                                <% for (let device of devices) { %>
-                                    <option class = "device-option" value = "<%= device.addr %>" <% if(selectedDevice == device.addr){ %>selected<% } %>><%= device.name %></option>
-                                <% } %>
-                                <option value = "all" <% if(selectedDevice === "all"){ %>selected<% } %>>All (in a grid)</option>
-                            </select>
+                            <button class = "live-select" title = "Stop stream" <% if (selectedDevice === 'none'){ %>disabled<% } %> onclick = "setStream(this, 'none')">
+                                <i class="fas fa-stop"></i> <span>No stream</span>
+                            </button>
+
+                            <% for (let device of devices) { %>
+                                <button class = "live-select" title = "Watch <%= device.name %>" <% if (selectedDevice == device.addr){ %>disabled<% } %> onclick = "setStream(this, '<%= device.addr %>')">
+                                    <i class="fas fa-camera-retro"></i> <span><%= device.name %></span>
+                                </button>
+                            <% } %>
+
+                            <button class = "live-select" title = "Watch all" <% if (selectedDevice === 'all'){ %>disabled<% } %> onclick = "setStream(this, 'all')">
+                                <i class="fas fa-border-all"></i> <span>Watch all</span>
+                            </button>
                         </div>
                         <div class = "container-options">
                             <button title = "Watch recordings" onclick = "window.location.href = '/'">
                                 <i class="fas fa-photo-video"></i> <span>Watch recordings</span>
-                            </button>
-                            <button title = "Watch all" onclick = "watchAll();">
-                                <i class="fas fa-border-all"></i> <span>Watch all</span>
                             </button>
                         </div>
                     </div>
@@ -54,24 +57,28 @@
 
         <script type = "text/javascript">
 
-            function updateStream(){
-                let selectedStream = $("#selector_device").children("option:selected").val();
+            function setStream(el, selectedStream){
+                $(el).attr("disabled", true);
+                $(el).addClass("loading");
+
                 let devices = selectedStream;
                 if (selectedStream === "none"){
                     devices = undefined;
                 }
                 else if (selectedStream === "all"){
-                    let availableStreams = $("#selector_device .device-option").map((i, el) => $(el).val()).toArray();
-                    console.log(availableStreams);
+                    let availableStreams = [<% for (let device of devices){ %>'<%= device.addr %>',<% } %>];
                     devices = availableStreams.join(",");
                 }
 
                 $.post("/setlivemode", {devices: devices}, (data) => {
 					if (data.success) {
                         setTimeout(() => {
+                            $(el).find("img").first().hide();
                             window.location.href = changeUrl({"live_device": selectedStream});
                         }, 2000);
 					} else {
+                        $(el).removeClass("loading");
+                        $(el).removeAttr("disabled");
 						alert("Oh noes, got an error! '" + data.message + "' (sorry)");
 					}
                 });

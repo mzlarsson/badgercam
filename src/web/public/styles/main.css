@@ -174,15 +174,33 @@ video {
     font-size: 1.2em;
 }
 
-.container-video {
-    position:relative;
-}
 
+.container-content-live-wrapper {
+    max-width: 1440;
+}
 #live-video {
     max-width:1440px;
     max-height: 810px;
     width:100%;
 }
+button.live-select {
+    position:relative;
+    width: 120px;
+    padding-left:0px;
+    padding-right:0px;
+}
+button.live-select.loading:after {
+    content: "";
+    width: 24px;
+    height: 24px;
+    background-image:url("/imgs/loading.gif");
+    background-size: 24px;
+    top: -3px;
+    left: 39px;         /* 120/2 - 24/2 - 17 . 17 is the border of the button */
+    position: absolute;
+    display: inline-block;
+}
+
 
 
 /* Mobile screen, portrait AND landscape mode */
@@ -201,9 +219,17 @@ video {
         max-height:96%;
     }
 
-    /* Remove text in navigation and options buttons */
+    /* Remove text in navigation and options buttons (except for live) */
     .container-controls button span {
         display: none;
+    }
+    .container-controls-live button span {
+        display:inline;
+    }
+
+    /* Let buttons in live view grow/shrink as they like */
+    .container-controls-live .container-navigation button {
+        width:100px;
     }
 
     /* Use space at top of screen more efficiently */
