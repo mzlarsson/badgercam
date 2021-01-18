@@ -65,7 +65,16 @@ Note: If you are doing development it might be nice to create a virtual environm
     cd src/web
     npm install 
 
-## Running the sync manually
+## Running the web page
+The web page is a simple NodeJS app. If you are into web development, please forgive me. Sometimes the code quality falls rather low due to lack of experience of professional JS and CSS. In most cases the code will work fine though. Anyhoot, here is how you can run it.
+
+1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
+2. Move into the web source folder. `cd src/web`
+3. Edit `settings.json` according to your needs. See examples in the file for syntax.
+4. Start server by running `node index.js`
+5. Site will be published under [http://localhost:9674](http://localhost:9674).
+
+## Running the sync manually (advanced usage)
 1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
 2. Move into the source folder. `cd src`
 3. Run sync script `python sync/sync.py [host] (options)`
@@ -84,20 +93,12 @@ Example usage:
 
 Note: The default settings for --sync-folder assumes you are running this script from the src folder of the repository. If you are not, please adjust that input option to make sure the videos are synced to your desired location.
 
-## Running the web page
-The web page is a simple NodeJS app. If you are into web development, please forgive me. Sometimes the code quality falls rather low due to lack of experience of professional JS and CSS. In most cases the code will work fine though. Anyhoot, here is how you can run it.
-
-1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
-2. Move into the web source folder. `cd src/web`
-3. Edit `settings.json` according to your needs. See examples in the file for syntax.
-4. Start server by running `node index.js`
-5. Site will be published under [http://localhost:9674](http://localhost:9674).
-
 ### Upcoming changes
-The web page is under rapid development atm. It might be buggy sometimes. I have plans to add live support as well as a "TV" mode too.
+The web page is under rapid development atm. It might be buggy sometimes. Live support is in beta. I have plans to add a sidetrack feature too: "TV" mode! (preset screens with support for IR control).
 
 ### Screenshot(s) of webpage
 ![Webpage in action, 2020-12-31](documentation/screenshot_20201231.png)
+![Live view, 2021-01-18](documentation/screenshot_20210118.png)
 
 ## Known issues
 ### Auto-detecting IP addresses

@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -y && apt-get install -y keyboard-configuration
 
 # Install tools
-RUN apt-get install -y openssh-server git netcat apt-utils curl iproute2 vim
+RUN apt-get install -y openssh-server git netcat apt-utils curl iproute2 vim iputils-ping net-tools
 
 # Install VLC
 RUN apt-get install -y vlc
