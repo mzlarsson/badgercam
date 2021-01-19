@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const {PythonShell} = require('python-shell');
 const arped = require('arped');
+const cron = require('node-cron');
 
 const live = require('./live/live');
 
@@ -15,6 +16,10 @@ const videoFormat = '.mp4';
 var settings = {};
 var videos = [];
 var markedVideos = [];
+var syncListeners = {
+    onStart: [],
+    onUpdate: []
+};
 
 var isRunningSync = false;
 
@@ -22,6 +27,8 @@ var isRunningSync = false;
 function load() {
     loadSettings();
     loadRuntimeInfo();
+
+    setupSyncSchedule();
 
     let watcher = chokidar.watch(syncPath)
       .on('add', onFileAdded)
@@ -48,7 +55,6 @@ function loadRuntimeInfo() {
     }
 }
 
-
 function storeRuntimeInfo() {
     try {
         let out = JSON.stringify({
@@ -57,6 +63,27 @@ function storeRuntimeInfo() {
         fs.writeFileSync('runtime_info.json', out);
     } catch (e) {
         console.log("Could not write runtime info: " + e);
+    }
+}
+
+function setupSyncSchedule(){
+    if (settings.sync && settings.sync.autosync){
+        for (let cronEntry of settings.sync.autosync){
+            try {
+                cron.schedule(cronEntry, runSync);
+            } catch(e) {
+                console.log(`Unable to use autosync entry '${cronEntry}', skipping...`);
+            }
+        }
+    }
+}
+
+function registerSyncListener(onStart, onUpdate){
+    if (onStart){
+        syncListeners.onStart.push(onStart);
+    }
+    if (onUpdate){
+        syncListeners.onUpdate.push(onUpdate);
     }
 }
 
@@ -298,22 +325,34 @@ function generateId(fileData) {
 
 
 
-function runManualSync(onStartNewSync, onNewUpdate) {
+function runSync() {
 
     if (isRunningSync) {
         console.log("Another sync is already running. Skipping...");
         return;
     }
 
+    let announceStart = () => {
+        for (let onStartListener of syncListeners.onStart){
+            onStartListener();
+        }
+    };
+
+    let announceUpdate = (update) => {
+        for (let onUpdateListener of syncListeners.onUpdate){
+            onUpdateListener(update);
+        }
+    };
+
     isRunningSync = true;
-    onStartNewSync();
+    announceStart();
 
     // Reload settings to make sure no new devices were added
     // or removed since we started the server
     loadSettings();
 
     if (!settings.devices){
-        onNewUpdate("Critical error: No devices found. Please update settings.json in web server folder");
+        announceUpdate("Critical error: No devices found. Please update settings.json in web server folder");
         isRunningSync = false;
         return;
     }
@@ -345,7 +384,7 @@ function runManualSync(onStartNewSync, onNewUpdate) {
 
         let ip = settings.devices[key].ip;
         if (ip === undefined) {
-            onNewUpdate("Auto-detecting IP address for device " + key + "...");
+            announceUpdate("Auto-detecting IP address for device " + key + "...");
             let interface = ("interface" in settings.devices[key] ? settings.devices[key].interface : "wlan0");
             if (interface in arpTable.Devices) {
                 ip = arpTable.Devices[interface].MACs[key];
@@ -353,10 +392,10 @@ function runManualSync(onStartNewSync, onNewUpdate) {
 
             if (ip === undefined) {
                 let name = ("name" in settings.devices[key] ? settings.devices[key].name : "Unnamed device");
-                onNewUpdate("Could not find IP address for device with MAC address " + key + " (" + name + "). Skipping it...");
+                announceUpdate("Could not find IP address for device with MAC address " + key + " (" + name + "). Skipping it...");
                 continue;
             } else {
-                onNewUpdate("IP address found! Using " + ip);
+                announceUpdate("IP address found! Using " + ip);
             }
         }
 
@@ -366,23 +405,25 @@ function runManualSync(onStartNewSync, onNewUpdate) {
         addArgIfExist("--telnet-pass", ["telnet", "password"]);
         addArgIfExist("--interface", "interface");
         addArgIfExist("--remote-folder", "remote_folder");
+        addArgIfExist("--sync-limit", ["sync", "limit"]);
+        addArgIfExist("--sync-cooldown", ["sync", "cooldown"]);
         args.push("--sync-folder");
         args.push(`${syncPath}/${deviceFolder}`);
 
         deviceArgs.push(args);
     }
 
-    onNewUpdate("");    // Just trigger newline. Little but hacky, but meh xD
-    onNewUpdate("Running update of " + deviceArgs.length + " device" + (deviceArgs.length != 1 ? "s" : ""));
+    announceUpdate("");    // Just trigger newline. Little but hacky, but meh xD
+    announceUpdate("Running update of " + deviceArgs.length + " device" + (deviceArgs.length != 1 ? "s" : ""));
 
     let syncNextDevice = () => {
         if (deviceArgs.length > 0) {
             let args = deviceArgs.shift();
-            runSyncOfDevice(args, onNewUpdate, syncNextDevice);
+            runSyncOfDevice(args, announceUpdate, syncNextDevice);
         } else {
             isRunningSync = false;
-            onNewUpdate("All devices updated");
-            onNewUpdate("");
+            announceUpdate("All devices updated");
+            announceUpdate("");
         }
     };
     syncNextDevice();
@@ -428,5 +469,6 @@ exports.getVideos = getVideos;
 exports.getDevices = getDevices;
 exports.removeVideo = removeVideoFromDisk;
 exports.setVideoMarked = setVideoMarked;
-exports.runManualSync = runManualSync;
+exports.runManualSync = runSync;
+exports.registerSyncListener = registerSyncListener;
 exports.setLiveDevices = setLiveDevices;

@@ -9,9 +9,8 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 const request = require('request');
 
-const fs = require('fs');
-const { loadBackend, getDevices, setLiveDevices, getVideos, removeVideo, setVideoMarked, runManualSync } = require('./model.js');
-loadBackend();
+var model = require('./model.js');
+model.loadBackend();
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -29,7 +28,7 @@ app.get('/', function(req, res, next){
 	let groupCollapsed = req.query.groups_collapsed;
 	
 	// Calculate result
-	let videoGroups = getVideos(grouping, sorting);
+	let videoGroups = model.getVideos(grouping, sorting);
 	let settings = {'grouping': grouping, 'sorting': sorting, 'groupsCollapsed': groupCollapsed};
 	
 	// Send response
@@ -41,7 +40,7 @@ app.get('/live', function(req, res, next){
 	let selectedDevice = req.query.live_device;
 	
 	// Calculate result
-	let devices = getDevices();
+	let devices = model.getDevices();
 	
 	// Send response
 	res.render("live", {'devices': devices, 'selectedDevice': selectedDevice});
@@ -63,7 +62,7 @@ app.post("/setlivemode", function(req, res, next){
 	
 	// Calculate result
 	let deviceList = (devices !== undefined ? devices.split(",") : undefined);
-	const [success, message] = setLiveDevices(deviceList, livePort);
+	const [success, message] = model.setLiveDevices(deviceList, livePort);
 
 	// Send response
     res.setHeader('Content-Type', 'application/json');
@@ -75,7 +74,7 @@ app.post('/remove', function(req, res, next) {
 	let id = req.body.videoId;
 
 	// Calculate result
-	const [success, message] = removeVideo(id);
+	const [success, message] = model.removeVideo(id);
 
 	// Send response
     res.setHeader('Content-Type', 'application/json');
@@ -87,7 +86,7 @@ app.post('/mark', function(req, res, next) {
 	let id = req.body.videoId;
 
 	// Calculate result
-	const [success, message] = setVideoMarked(id, true);
+	const [success, message] = model.setVideoMarked(id, true);
 
 	// Send response
     res.setHeader('Content-Type', 'application/json');
@@ -99,21 +98,22 @@ app.post('/unmark', function(req, res, next) {
 	let id = req.body.videoId;
 
 	// Calculate result
-	const [success, message] = setVideoMarked(id, false);
+	const [success, message] = model.setVideoMarked(id, false);
 
 	// Send response
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ success: success, message: message }));
 });
 
+let onSyncStart = () => io.emit("starting_new_sync");
+let onSyncUpdate = (msg) => io.emit("sync_update", msg);
+model.registerSyncListener(onSyncStart, onSyncUpdate);
+
 io.on('connection', (socket) => {
 	console.log('A user connected');
 	socket.on('manual_sync', () => {
 		console.log("Triggering manual sync");
-		let onStartNewSync = () => io.emit('starting_new_sync');
-		let onNewUpdate = (msg) => io.emit('sync_update', msg);
-		runManualSync(onStartNewSync, onNewUpdate);
-
+		model.runManualSync();
 	});
 });
 

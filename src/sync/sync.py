@@ -8,7 +8,7 @@ import argparse
 from time import sleep
 
 
-def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan0"):
+def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan0", sync_limit=None, sync_cooldown=60):
     # Authentication
     print("Connecting to {}".format(host))
     try:
@@ -31,17 +31,24 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
     # Download files from device
     downloaded_files = False
     port = 12346
+    limit_count = 0
     for file in files:
         dest_path = os.path.join(out_folder, file)
         if not os.path.exists(dest_path):
             downloaded_files = True
             src_path = os.path.join(in_folder, file)
 
+            if sync_limit and limit_count >= sync_limit:
+                print("Sync limit met, waiting {} seconds".format(sync_cooldown))
+                sleep(sync_cooldown)
+                limit_count = 0
+
             print()
             print("================= {} ================".format(src_path))
             print("Downloading file...")
             success = download_file(tn, src_path, dest_path, local_ip_addr, port)
             port += 1
+            limit_count += 1
             if not success:
                 print("Download failed, removing file...")
                 os.remove(dest_path)
@@ -112,13 +119,15 @@ def main():
     parser.add_argument('--telnet-user', type=str, default='root', help="User to supply to Telnet session")
     parser.add_argument('--telnet-pass', type=str, default='', help="Password to supply to Telnet session")
     parser.add_argument('--interface', type=str, default='wlan0', help="Interface used for network communication with camera (used to retrieve current IP address)")
+    parser.add_argument("--sync-limit", type=int, default=None, help="Number of files to sync at a time. If more are available, a cooldown will be invoked")
+    parser.add_argument("--sync-cooldown", type=int, default=60, help="Cooldown (in seconds) if sync_limit have been met. Default 60")
     args = parser.parse_args()
 
     if args.interface not in ni.interfaces():
         print("Could not find given network interface '{}'.\n  Available interfaces are: {}".format(args.interface, ni.interfaces()))
         return
 
-    do_sync(args.host, args.remote_folder, args.sync_folder, args.telnet_user, args.telnet_pass, args.interface)
+    do_sync(args.host, args.remote_folder, args.sync_folder, args.telnet_user, args.telnet_pass, args.interface, args.sync_limit, args.sync_cooldown)
 
 
 if __name__ == "__main__":

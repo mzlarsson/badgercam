@@ -1,4 +1,11 @@
 {
+    "sync": {
+        "autosync": [
+            "0 0 4 * * *"
+        ],
+        "limit": 10,
+        "cooldown": 30
+    },
     "devices": {
         "1c:7e:51:a6:cd:3e": {
             "name": "Pelle",

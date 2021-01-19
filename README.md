@@ -94,6 +94,8 @@ The web page is a simple NodeJS app. If you are into web development, please for
     **--telnet-user [username]**: User to login as on telnet. Default: "root"
     **--telnet-pass [password]**: Password to use for telnet. Default: ""
     **--interface**: Name of interface card connected to network you want to use. Default: "wlan0"
+    **--sync-limit**: Limit on how many downloads can be made in each batch. Default: unlimited
+    **--sync-cooldown**: Time (in seconds) between download batches if --sync-limit has been set. Default: 60.
 4. You can now find the downloaded and converted files in the folder you specified with --sync-folder. By default this will be in the *web/public/synced_videos* folder (relative to where command was issued).
 
 Example usage:
