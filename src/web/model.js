@@ -9,6 +9,8 @@ const cron = require('node-cron');
 
 const live = require('./live/live');
 
+const logger = require('./logging')('model');
+
 // Don't use trailing slash for syncPath
 const syncPath = "public/synced_videos";
 const videoFormat = '.mp4';
@@ -33,7 +35,7 @@ function load() {
     let watcher = chokidar.watch(syncPath)
       .on('add', onFileAdded)
       .on('unlink', onFileRemoved)
-      .on('addDir', path => console.log(`TODO: Directory ${path} has been added. New device?`));
+      .on('addDir', path => logger.debug(`TODO: Directory ${path} has been added. New device?`));
 }
 
 function loadSettings() {
@@ -41,7 +43,7 @@ function loadSettings() {
         let data = fs.readFileSync('settings.json');
         settings = JSON.parse(data);
     } catch (e) {
-        console.log("Could not load settings: " + e);
+        logger.fatal("Could not load settings: " + e);
     }
 }
 
@@ -51,7 +53,7 @@ function loadRuntimeInfo() {
         let jsonData = JSON.parse(data);
         markedVideos = jsonData["marked_videos"];
     } catch (e) {
-        console.log("Could not load runtime info: " + e);
+        logger.error("Could not load runtime info: " + e);
     }
 }
 
@@ -62,7 +64,7 @@ function storeRuntimeInfo() {
         }, null, 4);
         fs.writeFileSync('runtime_info.json', out);
     } catch (e) {
-        console.log("Could not write runtime info: " + e);
+        logger.fatal("Could not write runtime info: " + e);
     }
 }
 
@@ -72,7 +74,7 @@ function setupSyncSchedule(){
             try {
                 cron.schedule(cronEntry, runSync);
             } catch(e) {
-                console.log(`Unable to use autosync entry '${cronEntry}', skipping...`);
+                logger.error(`Unable to use autosync entry '${cronEntry}', skipping...`);
             }
         }
     }
@@ -92,7 +94,6 @@ function onFileAdded(path) {
         let fileData = getFileDataFromPath(path);
         if (fileData) {
             videos.push(fileData);
-            // console.log("Added video with path " + path);
         }
     }
 }
@@ -102,14 +103,14 @@ function onFileRemoved(path) {
     let index = videos.findIndex(data => data.file === fileData.file);
     if (index >= 0) {
         videos.splice(index, 1);
-        console.log("Removed video with path " + path);
+        logger.debug("Removed video with path " + path);
     }
 }
 
 function removeVideoFromDisk(id) {
     let fileDatas = videos.filter(x => x.id === id);
     if (fileDatas.length == 0) {
-        console.log("Warning! Tried to remove non-existant video.");
+        logger.warn("Tried to remove non-existant video.");
         return [false, "Unable to find given video"];
     }
 
@@ -119,7 +120,7 @@ function removeVideoFromDisk(id) {
         fs.unlinkSync(path);
         return [true, ""];
     } else {
-        console.log("Critical error: Found video entry in list but not file on disk");
+        logger.fatal("Found video entry in list but not file on disk");
         return [false, "Video entry found but file could not be found on disk"];
     }
 }
@@ -169,11 +170,11 @@ function setLiveDevices(deviceIds, port) {
 
     if (deviceIds === undefined){
         try{
-            console.log("Stopping live stream");
+            logger.info("Stopping live stream");
             live.stopStream();
         }
         catch(e){
-            console.log("Error! " + e);
+            logger.error(e);
             success = false;
             errorMsg = e;
         }
@@ -190,11 +191,11 @@ function setLiveDevices(deviceIds, port) {
         }
 
         try{
-            console.log("Starting live stream with the following streams: " + streams);
+            logger.info("Starting live stream with the following streams: " + streams);
             live.showLive(streams, port);
         }
         catch(e){
-            console.log("Error! " + e);
+            logger.error(e);
             success = false;
             errorMsg = e;
         }
@@ -328,7 +329,7 @@ function generateId(fileData) {
 function runSync() {
 
     if (isRunningSync) {
-        console.log("Another sync is already running. Skipping...");
+        logger.warn("Another sync is already running. Skipping...");
         return;
     }
 
@@ -443,13 +444,12 @@ function runSyncOfDevice(args, onNewUpdate, onDone) {
 
     // end the input stream and allow the process to exit
     pyshell.end(function (err,code,signal) {
-        console.log("Sync of device ended, result:")
+        logger.info("Sync of device ended, result:")
         if (err) {
-            console.log(err);
+            log.error(err);
             onNewUpdate("Critical error: " + err);
         }
-        console.log('Exit code: ' + code + "\tExit signal: " + signal);
-        console.log("==============================");
+        log.info('Exit code: ' + code + "\tExit signal: " + signal);
 
         onNewUpdate("Sync of device finished");
         onDone();

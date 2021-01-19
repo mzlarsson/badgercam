@@ -1,6 +1,8 @@
 const vlmgen = require('./vlmgen');
 const { spawn } = require('child_process');
 
+const logger = require('../logging')('live');
+
 var currentVLCProcess = undefined;
 var vlmFilename = "live.vlm";
 
@@ -16,7 +18,7 @@ function showLive(streams, port){
 
 function stopOldLive(){
     if (currentVLCProcess){
-        console.log("Stopping VLC re-stream");
+        logger.info("Stopping VLC re-stream");
         currentVLCProcess.kill();
         currentVLCProcess = undefined;
     }
@@ -34,7 +36,7 @@ function startNewLive() {
 
     let confFile = `${__dirname}/${vlmFilename}`;
     currentVLCProcess = spawn('vlc', ['-I', 'dummy', "--vlm-conf", confFile]);
-    console.log(`Live re-stream spawned using ${confFile}`);
+    logger.debug(`Live re-stream spawned using ${confFile}`);
 }
 
 exports.showLive = showLive;

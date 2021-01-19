@@ -9,6 +9,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 const request = require('request');
 
+const logger = require('./logging')('index');
 var model = require('./model.js');
 model.loadBackend();
 
@@ -49,7 +50,7 @@ app.get('/live', function(req, res, next){
 app.get('/livestream', function(req, res, next){
 	let url = `http://localhost:${livePort}/live`;
 	let stream = request.get(url).on('error', (e) => {
-		console.log(`Error piping live stream (${url}), sending static image instead. [Err: ${e}]`);
+		logger.warn(`Error piping live stream (${url}), sending static image instead. [Err: ${e}]`);
 		res.setHeader('Content-Type', 'image/png');
 		res.sendFile(`${__dirname}/public/imgs/no-video.png`);
 	});
@@ -110,13 +111,13 @@ let onSyncUpdate = (msg) => io.emit("sync_update", msg);
 model.registerSyncListener(onSyncStart, onSyncUpdate);
 
 io.on('connection', (socket) => {
-	console.log('A user connected');
+	logger.debug('A user connected');
 	socket.on('manual_sync', () => {
-		console.log("Triggering manual sync");
+		logger.info("Triggering manual sync");
 		model.runManualSync();
 	});
 });
 
 server.listen(webPort, "0.0.0.0", function(){
-	console.log(`Server started. Port ${webPort}`);
+	logger.info(`Server started. Port ${webPort}`);
 });
