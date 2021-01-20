@@ -1,19 +1,15 @@
 # BadgerCam
 This project started as a way for me to easier handle the cameras I have monitoring a barn in order to figure out the movement patterns of some unwanted badgers who are ripping up the floor (hence the name). The app provided for the cameras was horrible to use so I quickly realized a homemade solution could make my life a lot easier. Unfortunately the company I bought my cameras off were very anti this kind of solution so I will avoid publicly publishing juicy details (e.g. telnet passwords, model names etc) in order to avoid their gazing eyes at me, and I appreciate if you do the same. If you have any private questions about these details, feel free to contact me via email (see [github profile](https://github.com/mzlarsson)) or on reddit ([u/pepparkvarn](https://www.reddit.com/user/pepparkvarn)).
 
-In its current state, the software now syncs all video files from the camera (using telnet and netcat) and displays them in a list of recordings.
+In its current state, the software now syncs all video files from the camera (using telnet and netcat) and displays them in a list of recordings. It also have capabilities to show live feeds from the cameras via RTSP streams. A Dockerfile as available for easy setup.
 
-## Easy setup
-The following sections will explain how to manually setup the project. However, I took the time to create a `Docker` container to make it so much easier instead. If you are more interested in the manual setup and not docker, skip the rest of this section. Another sidenote: At the moment this dockerfile is not optimized at all meaning its size is rather large. Updates for improving this will come shortly.
+## Screenshot(s) of webpage
+![Webpage in action, 2020-12-31](documentation/screenshot_20201231.png)
+![Live view, 2021-01-18](documentation/screenshot_20210118.png)
 
-* Make sure you have `Docker` and `Docker compose` installed
-* Download the `Dockerfile` and `docker-compose.yaml` to your device
-* Edit the `docker-compose.yaml` so that the volumes match your requirements (we need one config file and one folder to sync videos to)
-* Edit the config file from previous step to match your devices. See [the example file](https://github.com/mzlarsson/badgercam/blob/main/src/web/settings.json) for what data is needed.
-* Run `docker-compose up` to build the image and start a container.
-* Woop woop! All done! Visit the webpage [here](http://localhost:9674).
+## Installation option 1 - Docker
+A `Dockerfile` is provided to easily set up all dependencies and start the webserver. The following code can be used to set this up. Please try to follow along since, in some cases, multiple solutions exist and you may want to use the optimal for your situation.
 
-Too long? I made a script for you! (not 100% tested though)
 ```bash
 # Get docker, skip if you already have it.
 # Note: The below example uses a Debian-based system.
@@ -42,22 +38,27 @@ wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/src/web/settings
 wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/Dockerfile
 wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/docker-compose.yaml
 
-# Prompt user to edit settings
+# Prompt to edit settings. See below for format.
 nano settings.json
 
 # Build dockerfile and run it
 docker-compose up -d
 ```
 
-## Required software
+See [Settings format](#settings-format) for all options in settings.json.
+
+When the script is run the webpage will be published at [http://localhost:9674](http://localhost:9674).
+
+## Installation option 2 - Manual
+### Required software
 * Python 3 and Pip (for syncing)
 * NodeJS and npm (for web)
 * VLC (for converting videos)
 * netcat (for syncing)
 
-During development I have tested with *Python v3.8.5*, *VLC 3.0.9.2-0-gd4c1aefe4d (Vetinari)* on an *Ubuntu 20.04* distro. Since this is mainly for my own personal use I have not tested with other versions, please notify me if you find any issues concerning this. Testing that everything runs smoothly on a Windows machine is on the TODO list.
+During development I have tested with *Python v3.8.5*, *NodeJS v15.6.0*, *VLC 3.0.9.2-0-gd4c1aefe4d (Vetinari)* on an *Ubuntu 20.04* distro. Since this is mainly for my own personal use I have not tested with other versions, please notify me if you find any issues concerning this. Testing that everything runs smoothly on a Windows machine is on the TODO list.
 
-## Installation
+### Setting up library dependencies
 1. Clone this repo. `git clone https://github.com/mzlarsson/badgercam.git`
 2. Move into the directory. `cd badgercam`
 3. Install pip dependencies. `pip install -r src/requirements.txt`
@@ -65,38 +66,41 @@ During development I have tested with *Python v3.8.5*, *VLC 3.0.9.2-0-gd4c1aefe4
 5. Install required node modules. `npm install`
 6. Yay. We are ready to go!
 
-Note: If you are doing development it might be nice to create a virtual environment and activating it before running pip install. If that sounds like mambo jambo to you, ignore it.
+Copy paste friendly version:
+```bash
+git clone https://github.com/mzlarsson/badgercam.git
+cd badgercam
+pip install -r src/requirements.txt
+cd src/web
+npm install
+```
 
-### TL;DR
-    git clone https://github.com/mzlarsson/badgercam.git
-    cd badgercam
-    pip install -r src/requirements.txt
-    cd src/web
-    npm install 
-
-## Running the web page
+### Running the web page
 The web page is a simple NodeJS app. If you are into web development, please forgive me. Sometimes the code quality falls rather low due to lack of experience of professional JS and CSS. In most cases the code will work fine though. Anyhoot, here is how you can run it.
 
 1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
 2. Move into the web source folder. `cd src/web`
-3. Edit `settings.json` according to your needs. See examples in the file for syntax.
+3. Edit `settings.json` according to your needs. See [Settings format](#settings-format) for all available options.
 4. Start server by running `node index.js`
 5. Site will be published under [http://localhost:9674](http://localhost:9674).
 
-## Running the sync manually (advanced usage)
+
+### Running the sync manually (advanced usage)
+Sometimes you may want to run the sync manually without using the UI in the web tool. If this is the case, this is how you do it. However, I would like to once again emphasize that this is only **for advanced usage**.
+
 1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
 2. Move into the source folder. `cd src`
-3. Run sync script `python sync/sync.py [host] (options)`
-    **host**: IP address (preferred) or hostname of target camera device
-    Available options are as follows:
-    **--remote-folder [folder]**: Folder on remote host where videos are located. Default: "/mnt/mmc1"
-    **--sync-folder [folder]**: Folder on local computer to sync to. Default: "web/public/synced_videos"
-    **--telnet-user [username]**: User to login as on telnet. Default: "root"
-    **--telnet-pass [password]**: Password to use for telnet. Default: ""
-    **--interface**: Name of interface card connected to network you want to use. Default: "wlan0"
-    **--sync-limit**: Limit on how many downloads can be made in each batch. Default: unlimited
+3. Run sync script `python sync/sync.py [host] (options)`  
+    **host**: IP address (preferred) or hostname of target camera device  
+    Available options are as follows:  
+    **--remote-folder [folder]**: Folder on remote host where videos are located. Default: "/mnt/mmc1"  
+    **--sync-folder [folder]**: Folder on local computer to sync to. Default: "web/public/synced_videos"  
+    **--telnet-user [username]**: User to login as on telnet. Default: "root"  
+    **--telnet-pass [password]**: Password to use for telnet. Default: ""  
+    **--interface**: Name of interface card connected to network you want to use. Default: "wlan0"  
+    **--sync-limit**: Limit on how many downloads can be made in each batch. Default: unlimited  
     **--sync-cooldown**: Time (in seconds) between download batches if --sync-limit has been set. Default: 60.
-4. You can now find the downloaded and converted files in the folder you specified with --sync-folder. By default this will be in the *web/public/synced_videos* folder (relative to where command was issued).
+4. You can now find the downloaded and converted files in the folder you specified with --sync-folder. By default this will be in the *web/public/synced_videos* folder (relative to where command was issued). Note that the webpage does not use the default value of --sync-folder.
 
 Example usage:
 
@@ -104,12 +108,59 @@ Example usage:
 
 Note: The default settings for --sync-folder assumes you are running this script from the src folder of the repository. If you are not, please adjust that input option to make sure the videos are synced to your desired location.
 
-### Upcoming changes
-The web page is under rapid development atm. It might be buggy sometimes. Live support is in beta. I have plans to add a sidetrack feature too: "TV" mode! (preset screens with support for IR control).
+## Settings format
+```json
+{
+    "log_file": string,
+    "sync": {
+        "autosync": [string],
+        "limit": int,
+        "cooldown": int
+    },
+    "devices": [
+        {
+            "name": string,
+            "interface": string,
+            "ip": string,
+            "mac": string,
+            "remote_folder": string,
+            "telnet": {
+                "user": string,
+                "password": string
+            },
+            "rtsp": {
+                "port": int,
+                "path": string
+            }
+        },
+    ]
+}
+```
 
-### Screenshot(s) of webpage
-![Webpage in action, 2020-12-31](documentation/screenshot_20201231.png)
-![Live view, 2021-01-18](documentation/screenshot_20210118.png)
+### General settings:  
+**log_file**: Path to file which server logs to. Default "logs/badgercam.log".
+
+### Sync settings:  
+**autosync**: List of cronjob strings, as specified [here](https://www.npmjs.com/package/node-cron#cron-syntax). An automatic sync will trigger each time these expressions trigger. Defaults to empty list.  
+**limit**: Number of downloads the sync can do on one device before waiting a particular cooldown. Default unlimited.  
+**cooldown**: The cooldown (in seconds) after the download limit has been reached. Default 60 seconds.
+
+### Device settings:  
+**name**: Pretty name for the device to show in UI. Optional.  
+**interface**: What interface this device is reachable through. Default wlan0.  
+**ip**: IP number of the device. This field is optional but highly recommended to set. The autodetect IP feature is rather bad (see known issues).  
+**mac**: MAC address of the device. Required.  
+**remote_folder**: Remote folder on device that holds videos. Default /mnt/mmc1.  
+
+#### Device -> Telnet settings: (required)  
+**user**: Username when syncing over telnet. Default root.  
+**password**: Password when syncing over telnet. Default empty string.  
+
+#### Device -> RTSP settings: (optional)  
+**port**: RTSP port for retrieving live feed. This information can be retrieved via ONVIF if your camera supports it. Required.  
+**path**: RTSP port for retrieving live feed. This information can be retrieved via ONVIF if your camera supports it. Required.  
+
+See [this file](https://github.com/mzlarsson/badgercam/blob/main/src/web/settings.json) to see an example.
 
 ## Known issues
 ### Auto-detecting IP addresses
