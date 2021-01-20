@@ -7,11 +7,12 @@
         "limit": 10,
         "cooldown": 30
     },
-    "devices": {
-        "1c:7e:51:a6:cd:3e": {
+    "devices": [
+        {
             "name": "Pelle",
             "interface": "wlp2s0",
-            "ip": "192.168.101.118",
+            "mac": "aa:bb:cc:dd:ee:ff",
+            "ip": "192.168.123.123",
             "remote_folder": "/mnt/mmc1",
             "telnet": {
                 "user": "root",
@@ -22,10 +23,26 @@
                 "path": "video1"
             }
         },
-        "1c:7e:51:aa:bb:cc": {
-            "name": "AnnanKamera",
+        {
+            "name": "Olle",
             "interface": "wlp2s0",
-            "ip": "192.168.101.163",
+            "ip": "192.168.123.231",
+            "mac": "11:22:33:44:55:66",
+            "remote_folder": "/mnt/mmc1",
+            "telnet": {
+                "user": "root",
+                "password": "SOME_PASSWORD_HERE"
+            },
+            "rtsp": {
+                "port": 554,
+                "path": "video1"
+            }
+        },
+        {
+            "name": "Kalle",
+            "interface": "wlp2s0",
+            "ip": "192.168.123.213",
+            "mac": "1a:2b:3c:4d:5e:6f",
             "remote_folder": "/mnt/mmc1",
             "telnet": {
                 "user": "root",
@@ -36,5 +53,5 @@
                 "path": "video1"
             }
         }
-    }
+    ]
 }

@@ -8,14 +8,13 @@ const arped = require('arped');
 const cron = require('node-cron');
 
 const live = require('./live/live');
-
 const logger = require('./logging')('model');
+const settings = require('./settings')();
 
 // Don't use trailing slash for syncPath
 const syncPath = "public/synced_videos";
 const videoFormat = '.mp4';
 
-var settings = {};
 var videos = [];
 var markedVideos = [];
 var syncListeners = {
@@ -27,7 +26,6 @@ var isRunningSync = false;
 
 
 function load() {
-    loadSettings();
     loadRuntimeInfo();
 
     setupSyncSchedule();
@@ -36,15 +34,6 @@ function load() {
       .on('add', onFileAdded)
       .on('unlink', onFileRemoved)
       .on('addDir', path => logger.debug(`TODO: Directory ${path} has been added. New device?`));
-}
-
-function loadSettings() {
-    try {
-        let data = fs.readFileSync('settings.json');
-        settings = JSON.parse(data);
-    } catch (e) {
-        logger.fatal("Could not load settings: " + e);
-    }
 }
 
 function loadRuntimeInfo() {
@@ -152,13 +141,11 @@ function setVideoMarked(id, marked) {
 
 function getDevices() {
     let res = [];
-    if (settings.devices) {
-        for (let addr in settings.devices) {
-            res.push({
-                'addr': addr,
-                'name': getDeviceName(addr)
-            });
-        }
+    for (let dev of settings.devices) {
+        res.push({
+            'addr': dev.mac,
+            'name': getDeviceName(dev.mac)
+        });
     }
 
     return res;
@@ -181,9 +168,8 @@ function setLiveDevices(deviceIds, port) {
     }
     else {
         let streams = [];
-        for (let deviceId in settings.devices){
-            if (deviceIds === "all" || deviceIds.includes(deviceId)){
-                let device = settings.devices[deviceId];
+        for (let device of settings.devices){
+            if (deviceIds === "all" || deviceIds.includes(device.mac)){
                 if ("rtsp" in device){
                     streams.push(`rtsp://${device.ip}:${device.rtsp.port}/${device.rtsp.path}`);
                 }
@@ -301,12 +287,12 @@ function getFileFromLocalUrl(url) {
     return "public" + (url.startsWith("/") ? "" : "/") + url;
 }
 
-function getDeviceName(device) {
-    if (settings.devices && device in settings.devices) {
-        return settings.devices[device].name;
+function getDeviceName(mac) {
+    if (mac in settings.devices && settings.devices[mac].name) {
+        return settings.devices[mac].name;
     }
 
-    return device;  // No translation found
+    return mac;  // No translation found
 }
 
 function groupBy(list, keyFunc) {
@@ -348,23 +334,13 @@ function runSync() {
     isRunningSync = true;
     announceStart();
 
-    // Reload settings to make sure no new devices were added
-    // or removed since we started the server
-    loadSettings();
-
-    if (!settings.devices){
-        announceUpdate("Critical error: No devices found. Please update settings.json in web server folder");
-        isRunningSync = false;
-        return;
-    }
-
     let arpTable = arped.parse(arped.table());
     let deviceArgs = [];
-    for (const key in settings.devices) {
+    for (const device of settings.devices) {
         args = []
 
         let addArgIfExist = (arg, propPath) => {
-            let tmp = settings.devices[key];
+            let tmp = device;
             let error = false;
             propPath = Array.isArray(propPath) ? propPath : [propPath];
 
@@ -383,24 +359,24 @@ function runSync() {
             }
         };
 
-        let ip = settings.devices[key].ip;
+        let ip = device.ip;
         if (ip === undefined) {
-            announceUpdate("Auto-detecting IP address for device " + key + "...");
-            let interface = ("interface" in settings.devices[key] ? settings.devices[key].interface : "wlan0");
+            announceUpdate("Auto-detecting IP address for device " + device.mac + "...");
+            let interface = ("interface" in device ? device.interface : "wlan0");
             if (interface in arpTable.Devices) {
-                ip = arpTable.Devices[interface].MACs[key];
+                ip = arpTable.Devices[interface].MACs[device.mac];
             }
 
             if (ip === undefined) {
-                let name = ("name" in settings.devices[key] ? settings.devices[key].name : "Unnamed device");
-                announceUpdate("Could not find IP address for device with MAC address " + key + " (" + name + "). Skipping it...");
+                let name = ("name" in device ? device.name : "Unnamed device");
+                announceUpdate("Could not find IP address for device with MAC address " + device.mac + " (" + name + "). Skipping it...");
                 continue;
             } else {
                 announceUpdate("IP address found! Using " + ip);
             }
         }
 
-        let deviceFolder = key.replace(/:/g, "_");
+        let deviceFolder = device.mac.replace(/:/g, "_");
         args.push(ip);
         addArgIfExist("--telnet-user", ["telnet", "user"]);
         addArgIfExist("--telnet-pass", ["telnet", "password"]);

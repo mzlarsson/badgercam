@@ -2,21 +2,11 @@ var log4js = require('log4js');
 const fs = require('fs');
 const path = require('path');
 
-var logFile = "logs/badgercam.log";
-
-function readLogPath(){
-    try {
-        let data = fs.readFileSync('settings.json');
-        let settings = JSON.parse(data);
-        if (settings.log_file){
-            logFile = settings.log_file;
-        }
-    } catch (e) {
-        console.log("Failed to read log path from settings.json: " + e);
-    }
-}
+const settings = require('./settings')();
+var defaultLogFile = "logs/badgercam.log";
 
 function init() {
+    let logFile = (settings.log_file ? settings.log_file : defaultLogFile);
     let dir = path.dirname(logFile);
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir, {recursive: true});
