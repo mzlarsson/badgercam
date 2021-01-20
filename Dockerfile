@@ -33,5 +33,5 @@ WORKDIR /home/badger/badgercam/src/web
 RUN npm install
 
 # Command to start server
-WORKDIR /home/badger/badgercam/
-ENTRYPOINT [ "run_latest_webserver.sh" ]
+WORKDIR /home/badger/badgercam
+ENTRYPOINT [ "./run_latest_webserver.sh" ]
