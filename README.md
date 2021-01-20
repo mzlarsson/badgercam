@@ -1,7 +1,7 @@
 # BadgerCam
-This project started as a way for me to easier handle the cameras I have monitoring a barn in order to figure out the movement patterns of some unwanted badgers who are ripping up the floor (hence the name). The app provided for the cameras was horrible to use so I quickly realized a homemade solution could make my life a lot easier. Unfortunately the company I bought my cameras off were very anti this kind of solution so I will avoid publicly publishing juicy details (e.g. telnet passwords, model names etc) in order to avoid their gazing eyes at me, and I appreciate if you do the same. If you have any private questions about these details, feel free to contact me via email (see [github profile](https://github.com/mzlarsson)) or on reddit ([u/pepparkvarn](https://www.reddit.com/user/pepparkvarn)).
+This project started as a way for me to easier handle the cameras I have monitoring a barn in order to figure out the movement patterns of some unwanted badgers who are ripping up the floor (hence the name). The app provided for the cameras was horrible to use so I quickly realized a homemade solution could make my life a lot easier. Unfortunately the company I bought my cameras off were rather unhelpful which gave me a rough start but finally I solved it. If you have any questions about details, e.g. retrieving telnet passwords etc., feel free to contact me via email (see [github profile](https://github.com/mzlarsson)) or on reddit ([u/pepparkvarn](https://www.reddit.com/user/pepparkvarn)). Or just open a ticket, it's 2021 after all!
 
-In its current state, the software now syncs all video files from the camera (using telnet and netcat) and displays them in a list of recordings. It also have capabilities to show live feeds from the cameras via RTSP streams. A Dockerfile as available for easy setup.
+In its current state, the software now syncs all video files from the camera (using telnet and netcat) and displays them in a list of recordings. It also have capabilities to show live feeds from the cameras via RTSP streams. A Dockerfile is available for easy setup.
 
 ## Screenshot(s) of webpage
 ![Webpage in action, 2020-12-31](documentation/screenshot_20201231.png)
@@ -109,7 +109,7 @@ Example usage:
 Note: The default settings for --sync-folder assumes you are running this script from the src folder of the repository. If you are not, please adjust that input option to make sure the videos are synced to your desired location.
 
 ## Settings format
-```json
+```
 {
     "log_file": string,
     "sync": {
