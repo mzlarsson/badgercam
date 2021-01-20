@@ -285,14 +285,19 @@
 			}
 
 			function scrollToMenu() {
+				let selectedEl = $(".menu-entry.selected").first();
+				if (!selectedEl){
+					return;
+				}
+
 				let isPortrait = (window.orientation == 0);
 				if (isPortrait) {	// Scroll horizontally
 					let baseScroll = $("#container-menu-content").scrollLeft();
-					let scroll = baseScroll + $(".menu-entry.selected").first().offset().left-100;
+					let scroll = baseScroll + selectedEl.offset().left-100;
 					$("#container-menu-content").scrollLeft(Math.max(0, scroll));
 				} else {			// Scroll vertically
 					let baseScroll = $("#container-menu-content").scrollTop();
-					let scroll = baseScroll + $(".menu-entry.selected").first().offset().top-150;
+					let scroll = baseScroll + selectedEl.offset().top-150;
 					$("#container-menu-content").scrollTop(Math.max(0, scroll));
 				}
 			}
