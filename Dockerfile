@@ -24,6 +24,9 @@ RUN usermod -aG sudo badger
 USER badger
 WORKDIR /home/badger
 
+# Create settings dir
+RUN mkdir /home/badger/.badgercam
+
 # Clone repo
 RUN git clone https://github.com/mzlarsson/badgercam.git
 WORKDIR /home/badger/badgercam

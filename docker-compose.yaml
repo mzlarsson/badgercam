@@ -6,5 +6,5 @@ services:
 #    ports:
 #      - "9674:9674"
     volumes:
-      - /opt/badgercam/settings.json:/home/badger/badgercam/src/web/settings.json
+      - /opt/badgercam/settings.json:/home/badger/.badgercam/settings.json
       - /opt/badgercam/synced_videos:/home/badger/badgercam/src/web/public/synced_videos

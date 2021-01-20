@@ -24,7 +24,6 @@ function init() {
     });
 }
 
-readLogPath();
 init();
 
 module.exports = log4js.getLogger;

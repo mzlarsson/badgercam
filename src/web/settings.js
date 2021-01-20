@@ -2,7 +2,14 @@ const fs = require("fs");
 
 function loadSettings() {
     try {
-        let data = fs.readFileSync('settings.json');
+        const homedir = require('os').homedir();
+        const globalSettingsFile = `${homedir}/.badgercam/settings.json`;
+        
+        let settingsFile = fs.existsSync(globalSettingsFile) ? globalSettingsFile : "settings.json";
+
+        // Note: Logging lib not loaded here. Write directly to console.
+        console.log(`Reading settings from ${settingsFile}`);
+        let data = fs.readFileSync(settingsFile);
         let settings = JSON.parse(data);
 
         // Make devices indexed by mac addr
