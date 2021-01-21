@@ -288,8 +288,9 @@ function getFileFromLocalUrl(url) {
 }
 
 function getDeviceName(mac) {
-    if (mac in settings.devices && settings.devices[mac].name) {
-        return settings.devices[mac].name;
+    let device = settings.devices.filter(dev => dev.mac === mac);
+    if (device.length === 1) {
+        return device[0].name;
     }
 
     return mac;  // No translation found

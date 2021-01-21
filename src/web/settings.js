@@ -12,14 +12,9 @@ function loadSettings() {
         let data = fs.readFileSync(settingsFile);
         let settings = JSON.parse(data);
 
-        // Make devices indexed by mac addr
-        let devices = {};
-        if (settings.devices){
-            for (let dev in settings.devices){
-                devices[dev.mac] = dev;
-            }
+        if (!settings.devices){
+            settings.devices = [];
         }
-        settings.devices = devices;
 
         return settings;
     } catch (e) {
