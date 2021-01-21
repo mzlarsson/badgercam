@@ -23,10 +23,10 @@ const livePort = 9675;
 
 app.get('/', function(req, res, next){
 	// Read params
-	let grouping = req.query.grouping;
-	let sorting = req.query.sorting;
+	let grouping = (req.query.grouping ? req.query.grouping : 'date');
+	let sorting = (req.query.sorting ? req.query.sorting : 'desc');
+	let groupCollapsed = (req.query.groups_collapsed ? req.query.groups_collapsed : 'yes');
 	let selected = req.query.selected;
-	let groupCollapsed = req.query.groups_collapsed;
 	
 	// Calculate result
 	let videoGroups = model.getVideos(grouping, sorting);

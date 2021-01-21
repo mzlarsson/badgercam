@@ -23,7 +23,7 @@
 					</td>
 					<td>
 						<select id = "grouping-select" autocomplete="off">
-							<option value = "date" <% if (settings.grouping == 'date' || settings.grouping === undefined){ %>selected=selected<% } %>>Date</option>
+							<option value = "date" <% if (settings.grouping == 'date'){ %>selected=selected<% } %>>Date</option>
 							<option value = "camera" <% if (settings.grouping == 'camera'){ %>selected=selected<% } %>>Device</option>
 						</select>
 					</td>
@@ -34,7 +34,7 @@
 					</td>
 					<td>
 						<select id = "sorting-select" autocomplete="off">
-							<option value = "asc" <% if (settings.sorting == 'asc' || settings.sorting === undefined){ %>selected=selected<% } %>>Ascending</option>
+							<option value = "asc" <% if (settings.sorting == 'asc'){ %>selected=selected<% } %>>Ascending</option>
 							<option value = "desc" <% if (settings.sorting == 'desc'){ %>selected=selected<% } %>>Descending</option>
 						</select>
 					</td>
@@ -45,7 +45,7 @@
 					</td>
 					<td>
 						<select id = "groups-collapsed-select" autocomplete="off">
-							<option value = "no" <% if (settings.groupsCollapsed == 'no' || settings.groupsCollapsed === undefined){ %>selected=selected<% } %>>No</option>
+							<option value = "no" <% if (settings.groupsCollapsed == 'no'){ %>selected=selected<% } %>>No</option>
 							<option value = "yes" <% if (settings.groupsCollapsed == 'yes'){ %>selected=selected<% } %>>Yes</option>
 						</select>
 					</td>
