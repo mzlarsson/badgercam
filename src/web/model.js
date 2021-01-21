@@ -423,10 +423,10 @@ function runSyncOfDevice(args, onNewUpdate, onDone) {
     pyshell.end(function (err,code,signal) {
         logger.info("Sync of device ended, result:")
         if (err) {
-            log.error(err);
+            logger.error(err);
             onNewUpdate("Critical error: " + err);
         }
-        log.info('Exit code: ' + code + "\tExit signal: " + signal);
+        logger.info('Exit code: ' + code + "\tExit signal: " + signal);
 
         onNewUpdate("Sync of device finished");
         onDone();
