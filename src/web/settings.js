@@ -1,5 +1,7 @@
 const fs = require("fs");
 
+var settings = undefined;
+
 function loadSettings() {
     try {
         const homedir = require('os').homedir();
@@ -18,10 +20,18 @@ function loadSettings() {
 
         return settings;
     } catch (e) {
-        logger.fatal("Could not load settings: " + e);
+        console.log("Could not load settings: " + e);
     }
 
     return {};
 }
 
-module.exports = loadSettings;
+function getSettings() {
+    if (settings === undefined){
+        settings = loadSettings();
+    }
+    
+    return settings;
+}
+
+module.exports = getSettings;
