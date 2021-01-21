@@ -321,12 +321,14 @@ function runSync() {
     }
 
     let announceStart = () => {
+        logger.info("Starting sync");
         for (let onStartListener of syncListeners.onStart){
             onStartListener();
         }
     };
 
     let announceUpdate = (update) => {
+        logger.debug(`Sync update: ${update}`);
         for (let onUpdateListener of syncListeners.onUpdate){
             onUpdateListener(update);
         }
