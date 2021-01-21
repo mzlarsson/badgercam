@@ -205,7 +205,7 @@
 			function playVideo(el) {
 				if ($(el).hasClass("selected")) {
 					return;
-				} else if (!el || el.length == 0) {
+				} else if (!el || !el.length) {
 					console.log("Warning! Tried to select non-existant menu item!");
 					return;
 				}
@@ -286,7 +286,7 @@
 
 			function scrollToMenu() {
 				let selectedEl = $(".menu-entry.selected").first();
-				if (!selectedEl){
+				if (!selectedEl || !selectedEl.length){
 					return;
 				}
 
