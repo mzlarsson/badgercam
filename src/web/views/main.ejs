@@ -88,7 +88,7 @@
 							</div>
 
 							<% for (let fileInfo of group.files) { %>
-								<div class = "menu-entry no-select-text<% if(fileInfo['marked']){%> marked<% } %>" id = "menuentry_<%= fileInfo.id %>" video-id = "<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
+								<div class = "menu-entry visible no-select-text<% if(fileInfo['marked']){%> marked<% } %>" id = "menuentry_<%= fileInfo.id %>" video-id = "<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
 									<%= fileInfo['display'] %>
 								</div>
 							<% } %>
@@ -103,6 +103,26 @@
 				<div class = "container-content-wrapper">
 					<!-- Controls -->
 					<div class = "container-controls">
+						<div class = "container-options">
+							<button title = "Watch live feeds" onclick = "window.location.href = '/live'">
+								<i class="fas fa-video"></i> <span>Watch live</span>
+							</button>
+							<button title = "Removes converted video locally but keeps original video file (just in case)" onclick = "removeCurrentVideo();">
+								<i class="fas fa-trash-alt"></i> <span>Remove</span>
+							</button>
+							<button title = "Important videos are highlighted in the menu" onclick = "toggleMarkedOnCurrentVideo();">
+								<i id = "star-button-icon" class="far fa-star"></i> <span id = "star-button-text">Star/Unstar</span>
+							</button>
+							<button title = "Toggle night mode (videos between 6pm - 7am)" onclick = "toggleNightMode();">
+								<i id = "night-button-icon" class="far fa-moon"></i> <span id = "night-mode-button-text">Use night mode</span>
+							</button>
+							<button onclick = "doSync()">
+								<i class="fas fa-sync"></i> <span>Manual sync</span>
+							</button>
+							<button onclick = "showSettings()">
+								<i class="fas fa-cog"></i> <span>Settings</span>
+							</button>
+						</div>
 						<div class = "container-navigation">
 							<button onclick = "playPrevGroup()">
 								<i class="fas fa-fast-backward"></i> <span>Prev group</span>
@@ -115,23 +135,6 @@
 							</button>
 							<button onclick = "playNextGroup()">
 								<span>Next group</span> <i class="fas fa-fast-forward"></i>
-							</button>
-						</div>
-						<div class = "container-options">
-							<button title = "Watch live feeds" onclick = "window.location.href = '/live'">
-								<i class="fas fa-video"></i> <span>Watch live</span>
-							</button>
-							<button title = "Removes converted video locally but keeps original video file (just in case)" onclick = "removeCurrentVideo();">
-								<i class="fas fa-trash-alt"></i> <span>Remove</span>
-							</button>
-							<button title = "Important videos are highlighted in the menu" onclick = "toggleMarkedOnCurrentVideo();">
-								<i id = "star-button-icon" class="far fa-star"></i> <span id = "star-button-text">Star/Unstar</span>
-							</button>
-							<button onclick = "doSync()">
-								<i class="fas fa-sync"></i> <span>Manual sync</span>
-							</button>
-							<button onclick = "showSettings()">
-								<i class="fas fa-cog"></i> <span>Settings</span>
 							</button>
 						</div>
 					</div>
@@ -158,10 +161,12 @@
 			$("#container-settings").hide();
 			$("#container-sync-status").hide();
 
+			var nightMode = false;
+
 			<% if (selected) { %>
 				playVideo($("#menuentry_<%= selected %>"));
 			<% } else { %>
-				playVideo($(".menu-entry").first());
+				playVideo($(".menu-entry.visible").first());
 			<% } %>
 			scrollToMenu();
 
@@ -173,32 +178,32 @@
 			socket.on('sync_update', handleSyncUpdate);
 
 			function playPrev() {
-				let el = $(".menu-entry.selected").prev(".menu-entry");
+				let el = $(".menu-entry.selected").prev(".menu-entry.visible");
 				if (el.length != 0) {
 					playVideo(el);
 				} else {
-					playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry").last());
+					playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry.visible").last());
 				}
 				scrollToMenu();
 			}
 
 			function playPrevGroup() {
-				playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry").first());
+				playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry.visible").first());
 				scrollToMenu();
 			}
 
 			function playNext() {
-				let el = $(".menu-entry.selected").next(".menu-entry");
+				let el = $(".menu-entry.selected").next(".menu-entry.visible");
 				if (el.length != 0) {
 					playVideo(el);
 				} else {
-					playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry").first());
+					playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry.visible").first());
 				}
 				scrollToMenu();
 			}
 
 			function playNextGroup() {
-				playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry").first());
+				playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry.visible").first());
 				scrollToMenu();
 			}
 
@@ -237,6 +242,9 @@
 						if (currentVideo.parent().children(".menu-entry").length == 1) {
 							removeNode = currentVideo.parent();
 						}
+						else if (currentVideo.parent().children(".menu-entry.visible").length == 0){
+							currentVideo.parent().addClass("empty");
+						}
 						removeNode.remove();
 					}
 					else {
@@ -257,6 +265,33 @@
 						alert("Oh noes, got an error! '" + data.message + "' (sorry)");
 					}
 				});
+			}
+
+			function toggleNightMode() {
+				nightMode = !nightMode;
+				if (nightMode){
+					$("#night-button-icon").removeClass("far").addClass("fas");
+					$("#night-mode-button-text").html("Leave night mode");
+					$(".menu-entry").each((i, el) => {
+						const time = $(el).attr("video-time");
+						const hour = time.split(":")[0];
+						if (hour >= 7 && hour < 18){
+							console.log("Removing visible");
+							$(el).removeClass("visible");
+						}
+					});
+					$(".menu-group").each((i, el) => {
+						if ($(el).children(".menu-entry.visible").length == 0){
+							$(el).addClass("empty");
+						}
+					});
+				}
+				else {
+					$("#night-button-icon").removeClass("fas").addClass("far");
+					$("#night-mode-button-text").html("Use night mode");
+					$(".menu-group.empty").removeClass("empty");
+					$(".menu-entry").addClass("visible");
+				}
 			}
 
 			function updateStarButton() {

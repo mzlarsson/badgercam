@@ -109,6 +109,9 @@ video {
 .menu-group {
     margin-bottom: 10px;
 }
+.menu-group.empty {
+    display: none;
+}
 .menu-group-header {
     background: #333333;
     color:white;
@@ -118,11 +121,15 @@ video {
     border-bottom:1px solid #cccccc;
 }
 .menu-entry {
+    display: none;
     padding: 0.4em 1em;
 }
 .menu-entry:hover{
     background:#dddddd;
     cursor:pointer;
+}
+.menu-entry.visible {
+    display: block;
 }
 .menu-entry.selected {
     background:#bbbbbb;
@@ -236,6 +243,12 @@ button.live-select.loading:after {
     .container-controls {
         margin-top:5px;
     }
+
+    .container-options, .container-navigation{
+        width:100%;
+        text-align:center;
+        margin-bottom: 5px;
+    }
 }
 
 /* Mobile screen, portrait mode */
@@ -265,7 +278,7 @@ button.live-select.loading:after {
         overflow-x:scroll;
         white-space:nowrap;
     }
-    .menu-group, .menu-group-header, .menu-entry {
+    .menu-group, .menu-group-header, .menu-entry.visible {
         display:inline-block;
     }
     .menu-group {

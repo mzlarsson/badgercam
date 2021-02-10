@@ -16,7 +16,7 @@ function init() {
         appenders: {
             'console': { type: 'console' },
             'file': { type: 'fileSync', filename: logFile },
-            'limitedConsole': { type: 'logLevelFilter', level: 'INFO', appender: 'console' },
+            'limitedConsole': { type: 'logLevelFilter', level: 'DEBUG', appender: 'console' },
         },
         categories: {
             default: { appenders: ['file', 'limitedConsole'], level: 'DEBUG' },
