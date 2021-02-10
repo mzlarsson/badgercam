@@ -12,17 +12,21 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
     # Authentication
     print("Connecting to {}".format(host))
     try:
-        tn = TelnetConnection(host)
-        tn.login(user, password, wait_after_login=0.5)
+        tn = TelnetConnection(host, user, password, wait_after_login=2)
+        tn.connect()
         print("Connected to host (no guarantee for successful auth)\n")
     except Exception as e:
         print("Failed to connect: {}".format(e))
         return
 
     # Fetch list of files
-    tn.run_command("cd {}".format(in_folder))
-    files = get_files_in_folder(tn, ".")
-    print("Found {} files on camera memory card".format(len(files)))
+    try:
+        tn.run_command("cd {}".format(in_folder))
+        files = get_files_in_folder(tn, ".")
+        print("Found {} files on camera memory card".format(len(files)))
+    except Exception as e:
+        print("Failed to list files on device: {}".format(e))
+        return
 
     # Retrieve our IP (the address the camera should send the files to)
     local_ip_addr = get_local_ip_addr(if_name)
@@ -92,10 +96,14 @@ def get_files_in_folder(tn, folder):
 # Downloads file from remote device to local
 def download_file(tn, src_path, dest_path, local_ip_addr, port):
     # nc -l -p [port] > [outfile]
-    open_nc_port(port, dest_path)
-    # nc -w 3 [host] [port] < [file]
-    res = tn.run_command('nc -w 3 {} {} < {} || echo "Failure"'.format(local_ip_addr, port, src_path))
-    return not 'Failure' in res
+    nc_proc = open_nc_port(port, dest_path)
+    try:
+        # nc -w 3 [host] [port] < [file]
+        res = tn.run_command('nc -w 3 {} {} < {} || echo "Failure"'.format(local_ip_addr, port, src_path))
+        return not 'Failure' in res
+    except Exception as e:
+        nc_proc.terminate()
+        return False
 
 
 def open_nc_port(port, file):
@@ -105,6 +113,7 @@ def open_nc_port(port, file):
 
     outfile = open(file, 'w')
     p = sp.Popen(["nc", "-l", "-p {}".format(port)],shell=False,stdin=None,stdout=outfile,stderr=None,close_fds=False)
+    return p
 
 
 def get_local_ip_addr(if_name):
