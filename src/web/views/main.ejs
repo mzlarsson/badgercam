@@ -182,14 +182,20 @@
 				if (el.length != 0) {
 					playVideo(el);
 				} else {
-					playVideo($(".menu-entry.selected").parent().prev(".menu-group:not(.empty)").children(".menu-entry.visible").last());
+					const prevGroup = $(".menu-entry.selected").parent().prevAll(".menu-group:not(.empty)");
+					if (prevGroup.length > 0){
+						playVideo(prevGroup.first().children(".menu-entry.visible").last());
+					}
 				}
 				scrollToMenu();
 			}
 
 			function playPrevGroup() {
-				playVideo($(".menu-entry.selected").parent().prev(".menu-group:not(.empty)").children(".menu-entry.visible").first());
-				scrollToMenu();
+				const prevGroup = $(".menu-entry.selected").parent().prevAll(".menu-group:not(.empty)");
+				if (prevGroup.length > 0){
+					playVideo(prevGroup.first().children(".menu-entry.visible").first());
+					scrollToMenu();
+				}
 			}
 
 			function playNext() {
@@ -197,13 +203,19 @@
 				if (el.length != 0) {
 					playVideo(el);
 				} else {
-					playVideo($(".menu-entry.selected").parent().next(".menu-group:not(.empty)").children(".menu-entry.visible").first());
+					const nextGroup = $(".menu-entry.selected").parent().nextAll(".menu-group:not(.empty)");
+					if (nextGroup.length > 0){
+						playVideo(nextGroup.first().children(".menu-entry.visible").first());
+					}
 				}
 				scrollToMenu();
 			}
 
 			function playNextGroup() {
-				playVideo($(".menu-entry.selected").parent().next(".menu-group:not(.empty)").children(".menu-entry.visible").first());
+				const nextGroup = $(".menu-entry.selected").parent().nextAll(".menu-group:not(.empty)");
+				if (nextGroup.length > 0){
+					playVideo(nextGroup.first().children(".menu-entry.visible").first());
+				}
 				scrollToMenu();
 			}
 
