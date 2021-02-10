@@ -182,13 +182,13 @@
 				if (el.length != 0) {
 					playVideo(el);
 				} else {
-					playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry.visible").last());
+					playVideo($(".menu-entry.selected").parent().prev(".menu-group:not(.empty)").children(".menu-entry.visible").last());
 				}
 				scrollToMenu();
 			}
 
 			function playPrevGroup() {
-				playVideo($(".menu-entry.selected").parent().prev(".menu-group").children(".menu-entry.visible").first());
+				playVideo($(".menu-entry.selected").parent().prev(".menu-group:not(.empty)").children(".menu-entry.visible").first());
 				scrollToMenu();
 			}
 
@@ -197,13 +197,13 @@
 				if (el.length != 0) {
 					playVideo(el);
 				} else {
-					playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry.visible").first());
+					playVideo($(".menu-entry.selected").parent().next(".menu-group:not(.empty)").children(".menu-entry.visible").first());
 				}
 				scrollToMenu();
 			}
 
 			function playNextGroup() {
-				playVideo($(".menu-entry.selected").parent().next(".menu-group").children(".menu-entry.visible").first());
+				playVideo($(".menu-entry.selected").parent().next(".menu-group:not(.empty)").children(".menu-entry.visible").first());
 				scrollToMenu();
 			}
 
