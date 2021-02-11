@@ -33,7 +33,7 @@ function load() {
     let watcher = chokidar.watch(syncPath)
       .on('add', onFileAdded)
       .on('unlink', onFileRemoved)
-      .on('addDir', path => logger.debug(`TODO: Directory ${path} has been added. New device?`));
+      .on('addDir', path => {});
 }
 
 function loadRuntimeInfo() {
