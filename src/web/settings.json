@@ -1,11 +1,23 @@
 {
     "log_file": "logs/badgercam.log",
+    "email": {
+        "smtp": {
+            "host": "smtp.emailprovider.com",
+            "port": 465,
+            "secure": true,
+            "address": "email-to-send-from@domain.com",
+            "password": "YOUR_PASSWORD_HERE"
+        }
+    },
     "sync": {
         "autosync": [
             "0 0 4 * * *"
         ],
         "limit": 10,
-        "cooldown": 30
+        "cooldown": 30,
+        "email": [
+            "email-to-get-notifications@domain.com"
+        ]
     },
     "devices": [
         {

@@ -10,6 +10,7 @@ const cron = require('node-cron');
 const live = require('./live/live');
 const logger = require('./logging')('model');
 const settings = require('./settings')();
+const email = require('./email');
 
 // Don't use trailing slash for syncPath
 const syncPath = "public/synced_videos";
@@ -320,7 +321,16 @@ function runSync() {
         return;
     }
 
+    let fullSyncLog = "";
+
+    let getTime = () => {
+        let now = new Date();
+        let tzoffset = now.getTimezoneOffset() * 60000; //offset in milliseconds
+        return (new Date(now - tzoffset)).toISOString().slice(0, -1).replace("T", " ");
+    };
+
     let announceStart = () => {
+        fullSyncLog += `${getTime()}: Starting sync\n`;
         logger.info("Starting sync");
         for (let onStartListener of syncListeners.onStart){
             onStartListener();
@@ -328,6 +338,7 @@ function runSync() {
     };
 
     let announceUpdate = (update) => {
+        fullSyncLog += `${getTime()}: ${update}\n`;
         logger.debug(`Sync update: ${update}`);
         for (let onUpdateListener of syncListeners.onUpdate){
             onUpdateListener(update);
@@ -407,6 +418,10 @@ function runSync() {
         }
     };
     syncNextDevice();
+
+    if (settings.sync && settings.sync.email && settings.sync.email.length > 0){
+        email.send(settings.sync.email, "Sync finished", fullSyncLog);
+    }
 }
 
 function runSyncOfDevice(args, onNewUpdate, onDone) {
