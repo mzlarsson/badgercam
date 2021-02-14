@@ -12,6 +12,7 @@ class TelnetConnection:
         self.needs_reconnect = False
         self.nof_reconnects = 0
         self.nof_max_reconnects = 5
+        self.current_dir = "~"
 
         self.skip_to_post_motd = True
         self.login_prompt_text = "login: "
@@ -44,13 +45,26 @@ class TelnetConnection:
         self._login()
 
 
+    def move_to_dir(self, dir):
+        if dir.startswith("/"):
+            # absolute path
+            self.current_dir = dir
+        else:
+            # relative path
+            self.current_dir = "%s/%s" % (self.current_dir, dir)
+        print("Setting current directory %s" % (self.current_dir))
+        
+        self.run_command("cd {}".format(dir))
+
+
     def run_command(self, cmd, result_timeout=3):
         if self.needs_reconnect:
             if self.nof_reconnects < self.nof_max_reconnects:
                 print("Reconnecting...")
+                self.needs_reconnect = False
                 self.nof_reconnects += 1
                 self.connect()
-                self.needs_reconnect = False
+                self.move_to_dir(self.current_dir)
             else:
                 raise Exception("Too many failed reconnects")
 

@@ -21,7 +21,7 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
 
     # Fetch list of files
     try:
-        tn.run_command("cd {}".format(in_folder))
+        tn.move_to_dir(in_folder)
         files = get_files_in_folder(tn, ".")
         print("Found {} files on camera memory card".format(len(files)))
     except Exception as e:
