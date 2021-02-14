@@ -112,10 +112,20 @@ Note: The default settings for --sync-folder assumes you are running this script
 ```
 {
     "log_file": string,
+    "email": {
+        "smtp": {
+            "host": string,
+            "port": int,
+            "secure": bool,
+            "address": string,
+            "password": string
+        }
+    },
     "sync": {
         "autosync": [string],
         "limit": int,
-        "cooldown": int
+        "cooldown": int,
+        "email": [string]
     },
     "devices": [
         {
@@ -140,10 +150,18 @@ Note: The default settings for --sync-folder assumes you are running this script
 ### General settings:  
 **log_file**: Path to file which server logs to. Default "logs/badgercam.log".
 
+### Mail settings:  
+**host**: SMTP host for mail updates will be sent from. Required if you wish to use mail feature.  
+**port**: SMTP port your mail server is listening to. Default 465.  
+**secure**: Whether your mail server uses a secure connection. Defaults to true if port is 465, false otherwise.  
+**address**: Mail address you wish to send from. Required if you wish to use mail feature.  
+**password**: Password for above said address. Required if you wish to use mail feature.
+
 ### Sync settings:  
 **autosync**: List of cronjob strings, as specified [here](https://www.npmjs.com/package/node-cron#cron-syntax). An automatic sync will trigger each time these expressions trigger. Defaults to empty list.  
 **limit**: Number of downloads the sync can do on one device before waiting a particular cooldown. Default unlimited.  
-**cooldown**: The cooldown (in seconds) after the download limit has been reached. Default 60 seconds.
+**cooldown**: The cooldown (in seconds) after the download limit has been reached. Default 60 seconds.  
+**email**: List of email addresses to send sync log to after sync completion. Defaults to empty list.
 
 ### Device settings:  
 **name**: Pretty name for the device to show in UI. Optional.  

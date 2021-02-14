@@ -106,6 +106,12 @@ app.post('/unmark', function(req, res, next) {
     res.end(JSON.stringify({ success: success, message: message }));
 });
 
+app.post('/dev/sync', function(req, res, next) {
+	model.runManualSync();
+	res.send("Started sync");
+});
+
+
 let onSyncStart = () => io.emit("starting_new_sync");
 let onSyncUpdate = (msg) => io.emit("sync_update", msg);
 model.registerSyncListener(onSyncStart, onSyncUpdate);

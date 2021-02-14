@@ -12,8 +12,11 @@ function sendEmail(receivers, subject, text){
         return;
     }
 
+    // Use HTML newlines
+    text = text.replaceAll(/\n/g, "<br>");
+
     const port = (settings.email.smtp.port ? settings.email.smtp.port : 465);
-    const isSecure = (port == 465);
+    const isSecure = (settings.email.smtp.secure !== undefined ? settings.email.smtp.secure : (port === 465));
     const transporter = nodemailer.createTransport({
         host: settings.email.smtp.host,
         port: port,
@@ -72,5 +75,5 @@ if (require.main === module){
     }
 
     let destination = settings.sync.email;
-    sendEmail(destination, "Test", "This is a test email");
+    sendEmail(destination, "Test", "This is a test email\n\nThis is two lines down\nAint life wonderful?\n\nBest regards,\nBadgerCam Test Program");
 }

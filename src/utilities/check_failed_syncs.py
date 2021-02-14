@@ -1,5 +1,9 @@
 import os
 import argparse
+import sys
+
+sys.path.append("../sync")
+
 from convert import convert_to_mp4
 
 def find_files(dir, validator):
