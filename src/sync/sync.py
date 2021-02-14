@@ -57,6 +57,8 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
                 print("Download failed, removing file...")
                 os.remove(dest_path)
                 continue
+            else:
+                print("Download succeeded")
 
             if src_path.lower().endswith(".asf"):
                 print("Converting asf file to mp4...")
@@ -95,15 +97,25 @@ def get_files_in_folder(tn, folder):
 
 # Downloads file from remote device to local
 def download_file(tn, src_path, dest_path, local_ip_addr, port):
+    success = False
+
     # nc -l -p [port] > [outfile]
     nc_proc = open_nc_port(port, dest_path)
     try:
         # nc -w 3 [host] [port] < [file]
-        res = tn.run_command('nc -w 3 {} {} < {} || echo "Failure"'.format(local_ip_addr, port, src_path))
-        return not 'Failure' in res
+        res = tn.run_command('nc -w 3 {} {} < {} || echo "Failure"'.format(local_ip_addr, port, src_path), result_timeout=10)
+        print("DEBUG: Result of download operation: '%s'" % (res))
+        success = not 'Failure' in res
     except Exception as e:
+        success = False
+        print("Failed to download %s: '%s'" % (src_path, e))
+
+    # Kill process if it is still running
+    if nc_proc.poll() is None:
+        print("Killing leftover nc process...")
         nc_proc.terminate()
-        return False
+
+    return success
 
 
 def open_nc_port(port, file):
