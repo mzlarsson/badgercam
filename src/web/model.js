@@ -416,13 +416,13 @@ function runSync() {
             announceUpdate("All devices updated");
             announceUpdate("");
 
-            sendSyncEmailIfEnabled();
+            sendSyncEmailIfEnabled(fullSyncLog);
         }
     };
     syncNextDevice();
 }
 
-function sendSyncEmailIfEnabled(){
+function sendSyncEmailIfEnabled(fullSyncLog){
     let emailEnabled = (settings.sync && settings.sync.email && settings.sync.email.length > 0);
     if (emailEnabled){
         email.send(settings.sync.email, "Sync finished", fullSyncLog);
