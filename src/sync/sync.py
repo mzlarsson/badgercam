@@ -6,6 +6,34 @@ import netifaces as ni
 import subprocess as sp
 import argparse
 from time import sleep
+import json
+
+class Download:
+
+    def __init__(self, filename, full_path):
+        self.filename = filename
+        self.full_path = full_path
+        self.success = False
+        self.converted = False
+
+    def set_fullpath(self, path):
+        self.full_path = path
+
+    def set_success(self, success=True):
+        self.success = success
+
+    def set_converted(self, converted=True):
+        self.converted = converted
+
+    def to_json(self):
+        data = {
+            "filename": self.filename,
+            "full_path": self.full_path,
+            "success": self.success,
+            "converted": self.converted
+        }
+        return json.dumps(data)
+    
 
 
 def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan0", sync_limit=None, sync_cooldown=60):
@@ -33,13 +61,12 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
     print("Downloading files using local IP {}".format(local_ip_addr))
 
     # Download files from device
-    downloaded_files = False
+    downloaded_files = []
     port = 12346
     limit_count = 0
     for file in files:
         dest_path = os.path.join(out_folder, file)
         if not os.path.exists(dest_path):
-            downloaded_files = True
             src_path = os.path.join(in_folder, file)
 
             if sync_limit and limit_count >= sync_limit:
@@ -50,25 +77,33 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
             print()
             print("================= {} ================".format(src_path))
             print("Downloading file...")
+            download = Download(file, dest_path)
             success = download_file(tn, src_path, dest_path, local_ip_addr, port)
             port += 1
             limit_count += 1
-            if not success:
-                print("Download failed, removing file...")
-                os.remove(dest_path)
-                continue
-            else:
+
+            download.set_success(success)
+            if success:
                 print("Download succeeded")
 
-            if src_path.lower().endswith(".asf"):
-                print("Converting asf file to mp4...")
-                convert_to_mp4(dest_path)
+                if src_path.lower().endswith(".asf"):
+                    print("Converting asf file to mp4...")
+                    if convert_to_mp4(dest_path):
+                        download.set_converted(True)
+                        download.set_fullpath(dest_path.replace(".asf", ".mp4"))
+            else:
+                print("Download failed, removing file...")
+                os.remove(dest_path)
+
+            downloaded_files.append(download)
 
     if not downloaded_files:
         print("No new files to download")
 
     # Close connection
     tn.write("exit")
+
+    return downloaded_files
 
 
 def get_files_in_folder(tn, folder):
@@ -142,13 +177,21 @@ def main():
     parser.add_argument('--interface', type=str, default='wlan0', help="Interface used for network communication with camera (used to retrieve current IP address)")
     parser.add_argument("--sync-limit", type=int, default=None, help="Number of files to sync at a time. If more are available, a cooldown will be invoked")
     parser.add_argument("--sync-cooldown", type=int, default=60, help="Cooldown (in seconds) if sync_limit have been met. Default 60")
+    parser.add_argument("--summary", type=str, help="Path to where to put summary of downloads (JSON format). Default None")
     args = parser.parse_args()
 
     if args.interface not in ni.interfaces():
         print("Could not find given network interface '{}'.\n  Available interfaces are: {}".format(args.interface, ni.interfaces()))
         return
 
-    do_sync(args.host, args.remote_folder, args.sync_folder, args.telnet_user, args.telnet_pass, args.interface, args.sync_limit, args.sync_cooldown)
+    downloads = do_sync(args.host, args.remote_folder, args.sync_folder, args.telnet_user, args.telnet_pass, args.interface, args.sync_limit, args.sync_cooldown)
+
+    if args.summary:
+        # When we move the sync code to NodeJS as well this ugliness will go away :D
+        output = "{\"host\": \"%s\", \"downloads\": [%s]}" % (args.host, ", ".join([d.to_json() for d in downloads]))
+        with open(args.summary, 'w') as out:
+            out.write(output)
+
 
 
 if __name__ == "__main__":

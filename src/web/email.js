@@ -2,7 +2,7 @@ const settings = require('./settings')();
 const logger = require('./logging')('email');
 var nodemailer = require('nodemailer');
 
-function sendEmail(receivers, subject, text){
+function sendEmail(receivers, subject, text, attachments = []){
     if (!settings.email || !settings.email.smtp){
         logger.error("Could not find email SMTP info: " + e + ". Skip sending...");
         return;
@@ -31,7 +31,8 @@ function sendEmail(receivers, subject, text){
         from: `"BadgerCam" ${settings.email.smtp.address}`,
         to: receivers.join(", "),
         subject: subject,
-        html : text
+        html : text,
+        attachments: attachments
     };
 
     transporter.sendMail(mailOptions, function (err, info) {

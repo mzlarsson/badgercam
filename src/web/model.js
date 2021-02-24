@@ -10,10 +10,11 @@ const cron = require('node-cron');
 const live = require('./live/live');
 const logger = require('./logging')('model');
 const settings = require('./settings')();
-const email = require('./email');
+const notifications = require('./notifications');
 
 // Don't use trailing slash for syncPath
 const syncPath = "public/synced_videos";
+const summaryPath = "public/summary.json";
 const videoFormat = '.mp4';
 
 var videos = [];
@@ -322,6 +323,7 @@ function runSync() {
     }
 
     let fullSyncLog = "";
+    let downloadsData = [];
 
     let getTime = () => {
         let now = new Date();
@@ -400,6 +402,8 @@ function runSync() {
         addArgIfExist("--sync-cooldown", ["sync", "cooldown"]);
         args.push("--sync-folder");
         args.push(`${syncPath}/${deviceFolder}`);
+        args.push("--summary");
+        args.push(summaryPath);
 
         deviceArgs.push(args);
     }
@@ -408,6 +412,12 @@ function runSync() {
     announceUpdate("Running update of " + deviceArgs.length + " device" + (deviceArgs.length != 1 ? "s" : ""));
 
     let syncNextDevice = () => {
+        // If summary from last download exists, get data and clean up
+        if (fs.existsSync(summaryPath)){
+            downloadsData.push(JSON.parse(fs.readFileSync(summaryPath)));
+            fs.unlinkSync(summaryPath);
+        }
+
         if (deviceArgs.length > 0) {
             let args = deviceArgs.shift();
             runSyncOfDevice(args, announceUpdate, syncNextDevice);
@@ -416,17 +426,10 @@ function runSync() {
             announceUpdate("All devices updated");
             announceUpdate("");
 
-            sendSyncEmailIfEnabled(fullSyncLog);
+            notifications.sendSyncEmailIfEnabled(downloadsData, fullSyncLog);
         }
     };
     syncNextDevice();
-}
-
-function sendSyncEmailIfEnabled(fullSyncLog){
-    let emailEnabled = (settings.sync && settings.sync.email && settings.sync.email.length > 0);
-    if (emailEnabled){
-        email.send(settings.sync.email, "Sync finished", fullSyncLog);
-    }
 }
 
 function runSyncOfDevice(args, onNewUpdate, onDone) {
