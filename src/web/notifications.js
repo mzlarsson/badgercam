@@ -58,30 +58,44 @@ function createDownloadRow(download, counter, result){
 
 function createPreview(download, counter){
     return new Promise((resolve, reject) => {
-        if (!download.success){
+        if (!download.success || !download.converted){
             resolve({text: "-", attachment: undefined});
         } else {
-            let outfile = `thumbnail_${counter}.png`;
-            let outputPath = `${__dirname}/${thumbnailFolder}/${outfile}`;
-            createThumbnail(download.full_path, outputPath).then(_ => {
-                let imgSrc = fs.readFileSync(outputPath, 'base64');
-                let cid = "" + (100 + counter);
-                let attachment = {
-                    contentType: `image/png; name="${outfile}"`,
-                    contentDisposition: `inline; filename="${outfile}"`,
-                    encoding: 'base64',
-                    headers: {
-                        'Content-Location': outfile
-                    },
-                    cid: cid,
-                    content: imgSrc
-                };
-                let res = `<img src="cid:${cid}" width=300 alt="Preview" title="Preview">`;
-                fs.unlinkSync(outputPath);
-                resolve({text: res, attachment: attachment});
-            }).catch(err => {
-                resolve({text: "Unable to create thumbnail: \n" + err, attachment: undefined});
-            });
+            let createThumbnail = false;
+            try {
+                let timeStr = download.filename.substring(download.filename.length-10, download.filename.length-4);
+                let time = parseInt(timeStr);
+                createThumbnail = (time < 070000 && time >= 180000);
+            } catch(e){
+                console.log(`Unable to extract time from video filename: ${download.filename}`);
+            }
+
+            if (!createThumbnail){
+                resolve({text: "Thumbnail skipped", attachment: undefined});
+            }
+            else {
+                let outfile = `thumbnail_${counter}.png`;
+                let outputPath = `${__dirname}/${thumbnailFolder}/${outfile}`;
+                createThumbnail(download.full_path, outputPath).then(_ => {
+                    let imgSrc = fs.readFileSync(outputPath, 'base64');
+                    let cid = "" + (100 + counter);
+                    let attachment = {
+                        contentType: `image/png; name="${outfile}"`,
+                        contentDisposition: `inline; filename="${outfile}"`,
+                        encoding: 'base64',
+                        headers: {
+                            'Content-Location': outfile
+                        },
+                        cid: cid,
+                        content: imgSrc
+                    };
+                    let res = `<img src="cid:${cid}" width=300 alt="Preview" title="Preview">`;
+                    fs.unlinkSync(outputPath);
+                    resolve({text: res, attachment: attachment});
+                }).catch(err => {
+                    resolve({text: "Unable to create thumbnail: \n" + err, attachment: undefined});
+                });
+            }
         }
     });
 }
@@ -92,7 +106,7 @@ function createThumbnail(inputPath, outputPath){
         return ffmpeg()
           .input(inputPath)
           .inputOptions([`-ss 00:00:01`])
-          .outputOptions([`-vframes 1`, '-q:v 2'])
+          .outputOptions(['-vframes 1', '-q:v 2', '-vf scale=320:240'])
           .noAudio()
           .output(outputPath)
           .on('end', resolve)
