@@ -65,7 +65,7 @@ function createPreview(download, counter){
             try {
                 let timeStr = download.filename.substring(download.filename.length-10, download.filename.length-4);
                 let time = parseInt(timeStr);
-                createThumbnail = (time < 070000 && time >= 180000);
+                createThumbnail = (time < 070000 || time >= 180000);
             } catch(e){
                 console.log(`Unable to extract time from video filename: ${download.filename}`);
             }
