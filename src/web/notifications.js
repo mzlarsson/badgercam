@@ -61,16 +61,16 @@ function createPreview(download, counter){
         if (!download.success || !download.converted){
             resolve({text: "-", attachment: undefined});
         } else {
-            let createThumbnail = false;
+            let useThumbnail = false;
             try {
                 let timeStr = download.filename.substring(download.filename.length-10, download.filename.length-4);
                 let time = parseInt(timeStr);
-                createThumbnail = (time < 070000 || time >= 180000);
+                useThumbnail = (time < 070000 || time >= 180000);
             } catch(e){
                 console.log(`Unable to extract time from video filename: ${download.filename}`);
             }
 
-            if (!createThumbnail){
+            if (!useThumbnail){
                 resolve({text: "Thumbnail skipped", attachment: undefined});
             }
             else {
