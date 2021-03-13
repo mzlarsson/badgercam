@@ -32,6 +32,7 @@ def main():
 
     parser_missing_converted_files = subparsers.add_parser("noconvfile", help="Find files without converted mp4")
     parser_missing_converted_files.add_argument("--convert", action="store_true", help="Converts the found asf files")
+    parser_missing_converted_files.add_argument("--clear", action="store_true", help="Deletes the found asf files")
     parser_missing_converted_files.add_argument("folder", type=str, help="Folder to recursively look for asf files in")
 
     args = parser.parse_args()
@@ -51,6 +52,8 @@ def main():
         if args.convert:
             for file, size in files:
                 convert_to_mp4(file)
+        if args.clear:
+            delete_files(files)
 
 
 if __name__ == "__main__":
