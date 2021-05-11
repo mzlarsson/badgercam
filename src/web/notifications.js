@@ -104,6 +104,7 @@ function createPreview(download, counter){
 }
 
 function createThumbnail(inputPath, outputPath){
+    logger.info(`Creating thumbnail from ${inputPath}`);
     return new Promise(async (resolve, reject) => {
 
         return ffmpeg()
