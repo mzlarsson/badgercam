@@ -85,12 +85,6 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
             download.set_success(success)
             if success:
                 print("Download succeeded")
-
-                if src_path.lower().endswith(".asf"):
-                    print("Converting asf file to mp4...")
-                    if convert_to_mp4(dest_path):
-                        download.set_converted(True)
-                        download.set_fullpath(dest_path.replace(".asf", ".mp4"))
             else:
                 print("Download failed, removing file...")
                 os.remove(dest_path)
@@ -104,6 +98,21 @@ def do_sync(host, in_folder, out_folder, user="root", password="", if_name="wlan
     tn.write("exit")
 
     return downloaded_files
+
+
+def do_convert_if_needed(converted_out_folder, download):
+    if download.filename.lower().endswith(".asf"):
+        out_file = os.path.join(converted_out_folder, download.filename)
+        out_file = out_file[:out_file.rfind('.')] + '.mp4'  # Fix extension
+
+        print("Converting asf file to mp4...")
+        print("\tsource=%s" % download.full_path)
+        print("\tdest=%s" % out_file)
+        if convert_to_mp4(infile=download.full_path, outfile=out_file, overwrite=False):
+            download.set_converted(True)
+            download.set_fullpath(out_file)
+        else:
+            print("WARNING: Failed to convert file")
 
 
 def get_files_in_folder(tn, folder):
@@ -171,7 +180,8 @@ def main():
     parser = argparse.ArgumentParser(description='Sync video files (.ASF) via telnet and convert to readable mp4.')
     parser.add_argument('host', type=str, help='Host to connect to, either as IP (preferred) or hostname.')
     parser.add_argument('--remote-folder', type=str, default='/mnt/mmc1', help="Remote folder where the videos are located, e.g. /mnt/mmc1")
-    parser.add_argument('--sync-folder', type=str, default='web/public/synced_videos', help="Local folder where the videos are synced to, e.g. web/public/synced_videos")
+    parser.add_argument('--sync-raw-folder', type=str, default='web/public/synced_videos_raw', help="Local folder where unconverted videos are synced, e.g. web/public/synced_videos_raw")
+    parser.add_argument('--sync-conv-folder', type=str, default='web/public/synced_videos', help="Local folder where mp4 videos are stored, e.g. web/public/synced_videos")
     parser.add_argument('--telnet-user', type=str, default='root', help="User to supply to Telnet session")
     parser.add_argument('--telnet-pass', type=str, default='', help="Password to supply to Telnet session")
     parser.add_argument('--interface', type=str, default='wlan0', help="Interface used for network communication with camera (used to retrieve current IP address)")
@@ -184,7 +194,10 @@ def main():
         print("Could not find given network interface '{}'.\n  Available interfaces are: {}".format(args.interface, ni.interfaces()))
         return
 
-    downloads = do_sync(args.host, args.remote_folder, args.sync_folder, args.telnet_user, args.telnet_pass, args.interface, args.sync_limit, args.sync_cooldown)
+    downloads = do_sync(args.host, args.remote_folder, args.sync_raw_folder, args.telnet_user, args.telnet_pass, args.interface, args.sync_limit, args.sync_cooldown)
+
+    for download in downloads:
+        do_convert_if_needed(args.sync_conv_folder, download)
 
     if args.summary:
         # When we move the sync code to NodeJS as well this ugliness will go away :D

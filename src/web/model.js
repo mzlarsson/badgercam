@@ -13,6 +13,7 @@ const settings = require('./settings')();
 const notifications = require('./notifications');
 
 // Don't use trailing slash for syncPath
+const syncPathRaw = "public/synced_videos_raw";
 const syncPath = "public/synced_videos";
 const summaryPath = "public/summary.json";
 const videoFormat = '.mp4';
@@ -400,7 +401,9 @@ function runSync() {
         addArgIfExist("--remote-folder", "remote_folder");
         addArgIfExist("--sync-limit", ["sync", "limit"]);
         addArgIfExist("--sync-cooldown", ["sync", "cooldown"]);
-        args.push("--sync-folder");
+        args.push("--sync-raw-folder");
+        args.push(`${syncPathRaw}/${deviceFolder}`);
+        args.push("--sync-conv-folder");
         args.push(`${syncPath}/${deviceFolder}`);
         args.push("--summary");
         args.push(summaryPath);

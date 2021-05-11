@@ -29,10 +29,12 @@ sudo pip3 install docker-compose
 sudo mkdir /opt/badgercam
 sudo chown $(whoami):$(whoami) /opt/badgercam
 
-# Fill with basic content (sync folder and settings file)
+# Fill with basic content (sync folder and settings files)
 cd /opt/badgercam
+mkdir synced_videos_raw
 mkdir synced_videos
 wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/src/web/settings.json
+echo "{}" > runtime_info.json
 
 # Download docker configs
 wget https://raw.githubusercontent.com/mzlarsson/badgercam/main/Dockerfile
@@ -94,19 +96,20 @@ Sometimes you may want to run the sync manually without using the UI in the web 
     **host**: IP address (preferred) or hostname of target camera device  
     Available options are as follows:  
     **--remote-folder [folder]**: Folder on remote host where videos are located. Default: "/mnt/mmc1"  
-    **--sync-folder [folder]**: Folder on local computer to sync to. Default: "web/public/synced_videos"  
+    **--sync-raw-folder [folder]**: Folder on local computer to sync raw videos to. Default: "web/public/synced_videos_raw"  
+    **--sync-conv-folder [folder]**: Folder on local computer to sync actual (converted) videos to. Default: "web/public/synced_videos"  
     **--telnet-user [username]**: User to login as on telnet. Default: "root"  
     **--telnet-pass [password]**: Password to use for telnet. Default: ""  
     **--interface**: Name of interface card connected to network you want to use. Default: "wlan0"  
     **--sync-limit**: Limit on how many downloads can be made in each batch. Default: unlimited  
     **--sync-cooldown**: Time (in seconds) between download batches if --sync-limit has been set. Default: 60.
-4. You can now find the downloaded and converted files in the folder you specified with --sync-folder. By default this will be in the *web/public/synced_videos* folder (relative to where command was issued). Note that the webpage does not use the default value of --sync-folder.
+4. You can now find the downloaded and converted files in the folder you specified with --sync-conv-folder. By default this will be in the *web/public/synced_videos* folder (relative to where command was issued). Note that the webpage does not use the default value of --sync-conv-folder (due to the fact it is running from another relative folder).
 
 Example usage:
 
     python sync/sync.py 192.168.100.2 --remote-folder /mnt/mmc1 --telnet-pass secret_pw_here --interface wlp2s0
 
-Note: The default settings for --sync-folder assumes you are running this script from the src folder of the repository. If you are not, please adjust that input option to make sure the videos are synced to your desired location.
+Note: The default settings for `--sync-raw-folder` and `--sync-conv-folder` assumes you are running this script from the src folder of the repository. If you are not, please adjust that input option to make sure the videos are synced to your desired location.
 
 ## Settings format
 ```

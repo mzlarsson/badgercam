@@ -7,4 +7,6 @@ services:
 #      - "9674:9674"
     volumes:
       - /opt/badgercam/settings.json:/home/badger/.badgercam/settings.json
+      - /opt/badgercam/runtime_info.json:/home/badger/badgercam/src/web/runtime_info.json
+      - /opt/badgercam/synced_videos_raw:/home/badger/badgercam/src/web/public/synced_videos_raw
       - /opt/badgercam/synced_videos:/home/badger/badgercam/src/web/public/synced_videos

@@ -1,6 +1,7 @@
 
 const email = require('./email');
 const settings = require('./settings')();
+const logger = require('./logging')('notifications');
 
 const fs = require('fs');
 var ffmpeg = require('fluent-ffmpeg');
@@ -14,6 +15,8 @@ function sendSyncEmailIfEnabled(downloadsData, fullSyncLog){
     if (emailEnabled){
         generateDataTableFromDownloads(downloadsData).then(dataTable => {
             email.send(settings.sync.email, "Sync finished", `${dataTable.text}\n\n${fullSyncLog}`, dataTable.attachments);
+        }).catch(err => {
+            logger.error(`Failed to send notification email: ${err}`);
         });
     }
 }
