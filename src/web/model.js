@@ -33,10 +33,10 @@ function load() {
 
     setupSyncSchedule();
 
-    let watcher = chokidar.watch(syncPath)
+    /*let watcher = chokidar.watch(syncPath)
       .on('add', onFileAdded)
       .on('unlink', onFileRemoved)
-      .on('addDir', path => {});
+      .on('addDir', path => {});*/
 }
 
 function loadRuntimeInfo() {
