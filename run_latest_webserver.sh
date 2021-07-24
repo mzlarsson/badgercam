@@ -1,4 +1,6 @@
 #!/bin/bash
+git fetch
+
 if [ -z "$BADGERCAM_BRANCH" ]
 then
 BADGERCAM_BRANCH="main"
