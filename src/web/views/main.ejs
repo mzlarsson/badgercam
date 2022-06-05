@@ -90,12 +90,14 @@
 				<div id = "container-menu-content" class = "container-menu-content">
 
 					<% for (let group of videoGroups) { %>
+						<% if (settings.starredOnly && !group.files.some((f) => f['marked'])) continue; %>
 						<div class = "menu-group<% if (settings.groupsCollapsed == 'yes') { %> hidden<% } %>">
 							<div class = "menu-group-header" onclick = "toggleMenuGroup(this);">
 								<%= group.key %>
 							</div>
 
 							<% for (let fileInfo of group.files) { %>
+								<% if (settings.starredOnly && !fileInfo['marked']) continue; %>
 								<div class = "menu-entry visible no-select-text<% if(fileInfo['marked']){%> marked<% } %>" id = "menuentry_<%= fileInfo.id %>" video-id = "<%= fileInfo.id %>" camera = "<%= fileInfo['camera_name'] %>" video-date = "<%= fileInfo['date'] %>" video-time = "<%= fileInfo['time'] %>" video-file = "<%= fileInfo['file'] %>" onclick="playVideo(this);">
 									<%= fileInfo['display'] %>
 								</div>
