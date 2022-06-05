@@ -50,6 +50,14 @@
 						</select>
 					</td>
 				</tr>
+				<tr>
+					<td title = "Only show starred items">
+						Starred items only
+					</td>
+					<td>
+						<input type = "checkbox" id = "settings-starred-only" <% if (settings.starredOnly){ %>checked<% } %>>
+					</td>
+				</tr>
 				<tr><td colspan="2">&nbsp;</td></tr>
 				<tr>
 					<td>
@@ -388,10 +396,11 @@
 			}
 
 			function updateSettings() {
-				let grouping = $("#grouping-select").children("option:selected").val();
-				let sorting = $("#sorting-select").children("option:selected").val();
-				let groupsCollapsed = $("#groups-collapsed-select").children("option:selected").val();
-				window.location.href = changeUrl({"grouping": grouping, "sorting": sorting, "groups_collapsed": groupsCollapsed});
+				const grouping = $("#grouping-select").children("option:selected").val();
+				const sorting = $("#sorting-select").children("option:selected").val();
+				const groupsCollapsed = $("#groups-collapsed-select").children("option:selected").val();
+				const starredOnly = $("#settings-starred-only").is(":checked");
+				window.location.href = changeUrl({"grouping": grouping, "sorting": sorting, "groups_collapsed": groupsCollapsed, "starred_only": starredOnly});
 			}
 
 			function changeUrl(changeParams) {
