@@ -1,7 +1,10 @@
 import telnetlib
 from time import sleep
+import os
+import netifaces
+import subprocess as sp
 
-class TelnetConnection:
+class TelnetClient:
 
     def __init__(self, host, user="root", password="", wait_after_login=None):
         self.host = host
@@ -111,8 +114,76 @@ class TelnetConnection:
 
 
 
-class ZosiTelnetConnection(TelnetConnection):
+class ZosiTelnetClient(TelnetClient):
 
     def __init__(self, host):
         super().__init__(host)
         self.motd_header = "nfsroot: not found"
+
+
+class TelnetConnection:
+
+    def __init__(self, if_name, host, user, password, wait_after_login=2):
+        self.client = TelnetClient(host, user, password, wait_after_login)
+        self.local_ip = netifaces.ifaddresses(if_name)[netifaces.AF_INET][0]['addr']
+        self.download_port = 12346
+
+    def connect(self):
+        self.client.connect()
+
+    def list_files(self, folder):
+        self.client.move_to_dir(folder)
+        return self._get_files_in_folder(folder)
+
+    def _get_files_in_folder(self, folder):
+        lines = self.client.run_command("ls -al --color=none {}".format(folder)).split("\n")
+
+        if len(lines) < 3:
+            # First three lines should be line "total XX", folder '.' and folder '..'
+            print("Warning: Weird directory found with less then 3 entries. Skipping...")
+            return []
+
+        lines = lines[3:]
+        result = []
+        for line in lines:
+            name = " ".join(line.split()[8:])
+            if " " in name:
+                print("Skipping '{}'... (spaces not supported)".format(name))
+                continue
+
+            path = os.path.join(folder, line.split()[-1])
+            if line.startswith("d"):
+                result += self._get_files_in_folder(path)
+            else:
+                result.append(path)
+        return result
+
+    def download(self, src_path, dest_path):
+        success = False
+
+        # nc -l -p [port] > [outfile]
+        nc_proc = self._open_nc_port(self.download_port, dest_path)
+        try:
+            # nc -w 3 [host] [port] < [file]
+            res = self.client.run_command('nc -w 3 {} {} < {} || echo "Failure"'.format(self.local_ip, self.download_port, src_path), result_timeout=10)
+            print("DEBUG: Result of download operation: '%s'" % (res))
+            success = not 'Failure' in res
+        except Exception as e:
+            success = False
+            print("Failed to download %s: '%s'" % (src_path, e))
+
+        # Kill process if it is still running
+        if nc_proc.poll() is None:
+            print("Killing leftover nc process...")
+            nc_proc.terminate()
+
+        self.download_port += 1
+        return success
+
+    def _open_nc_port(port, file):
+        outfile = open(file, 'w')
+        p = sp.Popen(["nc", "-l", "-p {}".format(port)],shell=False,stdin=None,stdout=outfile,stderr=None,close_fds=False)
+        return p
+
+    def close(self):
+        self.client.write("exit")

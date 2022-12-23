@@ -93,21 +93,22 @@ Sometimes you may want to run the sync manually without using the UI in the web 
 1. Move to the directory where you cloned the repo, e.g. `cd ~/Documents/badgercam`
 2. Move into the source folder. `cd src`
 3. Run sync script `python sync/sync.py [host] (options)`  
-    **host**: IP address (preferred) or hostname of target camera device  
+    **host**: IP address (preferred) or hostname of target camera device. For SSH, use hostname:port when using custom port  
     Available options are as follows:  
+    **-proto [protocol]**: Protocol to use. Available options: telnet, ssh  
     **--remote-folder [folder]**: Folder on remote host where videos are located. Default: "/mnt/mmc1"  
     **--sync-raw-folder [folder]**: Folder on local computer to sync raw videos to. Default: "web/public/synced_videos_raw"  
     **--sync-conv-folder [folder]**: Folder on local computer to sync actual (converted) videos to. Default: "web/public/synced_videos"  
-    **--telnet-user [username]**: User to login as on telnet. Default: "root"  
-    **--telnet-pass [password]**: Password to use for telnet. Default: ""  
-    **--interface**: Name of interface card connected to network you want to use. Default: "wlan0"  
+    **--username [username]**: User to login as on telnet/SSH. Default: "root"  
+    **--password [password]**: Password to use for telnet/SSH. Default: ""  
+    **--interface**: Name of interface card connected to network you want to use. Only important for telnet. Default: "wlan0"  
     **--sync-limit**: Limit on how many downloads can be made in each batch. Default: unlimited  
     **--sync-cooldown**: Time (in seconds) between download batches if --sync-limit has been set. Default: 60.
 4. You can now find the downloaded and converted files in the folder you specified with --sync-conv-folder. By default this will be in the *web/public/synced_videos* folder (relative to where command was issued). Note that the webpage does not use the default value of --sync-conv-folder (due to the fact it is running from another relative folder).
 
 Example usage:
 
-    python sync/sync.py 192.168.100.2 --remote-folder /mnt/mmc1 --telnet-pass secret_pw_here --interface wlp2s0
+    python sync/sync.py 192.168.100.2 --remote-folder /mnt/mmc1 --password secret_pw_here --interface wlp2s0
 
 Note: The default settings for `--sync-raw-folder` and `--sync-conv-folder` assumes you are running this script from the src folder of the repository. If you are not, please adjust that input option to make sure the videos are synced to your desired location.
 
@@ -141,6 +142,10 @@ Note: The default settings for `--sync-raw-folder` and `--sync-conv-folder` assu
                 "user": string,
                 "password": string
             },
+            "ssh": {
+                "user": string,
+                "password": string
+            }
             "rtsp": {
                 "port": int,
                 "path": string
@@ -173,9 +178,13 @@ Note: The default settings for `--sync-raw-folder` and `--sync-conv-folder` assu
 **mac**: MAC address of the device. Required.  
 **remote_folder**: Remote folder on device that holds videos. Default /mnt/mmc1.  
 
-#### Device -> Telnet settings: (required)  
+#### Device -> Telnet settings: (required if not SSH given)  
 **user**: Username when syncing over telnet. Default root.  
 **password**: Password when syncing over telnet. Default empty string.  
+
+#### Device -> SSH settings: (required if not telnet given)  
+**user**: Username when syncing over SSH. Default root.  
+**password**: Password when syncing over SSH. Default empty string.  
 
 #### Device -> RTSP settings: (optional)  
 **port**: RTSP port for retrieving live feed. This information can be retrieved via ONVIF if your camera supports it. Required.  

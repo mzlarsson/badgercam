@@ -1,1 +1,2 @@
 netifaces==0.10.9
+pysftp==0.2.9
