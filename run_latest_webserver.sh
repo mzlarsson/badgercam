@@ -11,7 +11,6 @@ fi
 
 git checkout $BADGERCAM_BRANCH
 git pull
-pip3 install -r src/requirements.txt
 cd src/web
 npm install
 node index.js
