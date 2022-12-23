@@ -1,6 +1,3 @@
-from telnet_connection import TelnetConnection
-from ssh_connection import SSHConnection
-from ftp_connection import FTPConnection
 from convert import convert_to_mp4
 
 import os
@@ -102,10 +99,13 @@ def do_sync(proto, host, in_folder, out_folder, user="root", password="", if_nam
 
 def get_device(proto, if_name, host, user, password, wait_after_login=2):
     if proto == "ssh":
+        from ssh_connection import SSHConnection
         return SSHConnection(host, user, password)
     elif proto == "telnet":
+        from telnet_connection import TelnetConnection
         return TelnetConnection(if_name, host, user, password, wait_after_login)
     elif proto == "ftp":
+        from ftp_connection import FTPConnection
         return FTPConnection(host, user, password)
     else:
         raise Exception(f"Invalid protocol: {proto}")
