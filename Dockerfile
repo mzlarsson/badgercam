@@ -11,7 +11,7 @@ RUN apt-get install -y openssh-server git netcat apt-utils curl iproute2 vim ipu
 RUN apt-get install -y vlc
 
 # Install python and required packages
-RUN apt-get install -y python3 python3-netifaces
+RUN apt-get install -y python3 python3-pip python3-netifaces
 
 # Install node
 RUN curl -sL https://deb.nodesource.com/setup_15.x | bash -
