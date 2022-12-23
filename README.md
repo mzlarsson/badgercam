@@ -95,12 +95,12 @@ Sometimes you may want to run the sync manually without using the UI in the web 
 3. Run sync script `python sync/sync.py [host] (options)`  
     **host**: IP address (preferred) or hostname of target camera device. For SSH, use hostname:port when using custom port  
     Available options are as follows:  
-    **-proto [protocol]**: Protocol to use. Available options: telnet, ssh  
+    **-proto [protocol]**: Protocol to use. Available options: telnet, ssh, ftp  
     **--remote-folder [folder]**: Folder on remote host where videos are located. Default: "/mnt/mmc1"  
     **--sync-raw-folder [folder]**: Folder on local computer to sync raw videos to. Default: "web/public/synced_videos_raw"  
     **--sync-conv-folder [folder]**: Folder on local computer to sync actual (converted) videos to. Default: "web/public/synced_videos"  
-    **--username [username]**: User to login as on telnet/SSH. Default: "root"  
-    **--password [password]**: Password to use for telnet/SSH. Default: ""  
+    **--username [username]**: User to login with. Default: "root"  
+    **--password [password]**: Password to login with. Default: ""  
     **--interface**: Name of interface card connected to network you want to use. Only important for telnet. Default: "wlan0"  
     **--sync-limit**: Limit on how many downloads can be made in each batch. Default: unlimited  
     **--sync-cooldown**: Time (in seconds) between download batches if --sync-limit has been set. Default: 60.

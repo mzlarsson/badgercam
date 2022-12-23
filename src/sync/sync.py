@@ -1,5 +1,6 @@
 from telnet_connection import TelnetConnection
 from ssh_connection import SSHConnection
+from ftp_connection import FTPConnection
 from convert import convert_to_mp4
 
 import os
@@ -104,6 +105,8 @@ def get_device(proto, if_name, host, user, password, wait_after_login=2):
         return SSHConnection(host, user, password)
     elif proto == "telnet":
         return TelnetConnection(if_name, host, user, password, wait_after_login)
+    elif proto == "ftp":
+        return FTPConnection(host, user, password)
     else:
         raise Exception(f"Invalid protocol: {proto}")
 
@@ -124,14 +127,14 @@ def do_convert_if_needed(converted_out_folder, download):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Sync video files (.ASF) via telnet/SSH and convert to readable mp4.")
+    parser = argparse.ArgumentParser(description="Sync video files (.ASF) via telnet/SSH/FTP and convert to readable mp4.")
     parser.add_argument("host", type=str, help="Host to connect to, either as IP (preferred) or hostname.")
-    parser.add_argument("--proto", type=str, choices=["telnet","ssh"], default="telnet", help="Protocol to download files with")
+    parser.add_argument("--proto", type=str, choices=["telnet","ssh","ftp"], default="telnet", help="Protocol to download files with")
     parser.add_argument("--remote-folder", type=str, default="/mnt/mmc1", help="Remote folder where the videos are located, e.g. /mnt/mmc1")
     parser.add_argument("--sync-raw-folder", type=str, default="web/public/synced_videos_raw", help="Local folder where unconverted videos are synced, e.g. web/public/synced_videos_raw")
     parser.add_argument("--sync-conv-folder", type=str, default="web/public/synced_videos", help="Local folder where mp4 videos are stored, e.g. web/public/synced_videos")
-    parser.add_argument("--username", type=str, default="root", help="Username to supply to Telnet/SSH session")
-    parser.add_argument("--password", type=str, default="", help="Password to supply to Telnet/SSH session")
+    parser.add_argument("--username", type=str, default="root", help="Username to supply to protocol session")
+    parser.add_argument("--password", type=str, default="", help="Password to supply to protocol session")
     parser.add_argument("--interface", type=str, default="wlan0", help="Interface used for network communication with camera (used to retrieve current IP address)")
     parser.add_argument("--sync-limit", type=int, default=None, help="Number of files to sync at a time. If more are available, a cooldown will be invoked")
     parser.add_argument("--sync-cooldown", type=int, default=60, help="Cooldown (in seconds) if sync_limit have been met. Default 60")
