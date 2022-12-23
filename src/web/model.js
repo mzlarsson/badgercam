@@ -396,15 +396,20 @@ function runSync() {
         let deviceFolder = device.mac.replace(/:/g, "_");
         args.push(ip);
         if (device.telnet) {
-            args.push("--proto")
-            args.push("telnet")
+            args.push("--proto");
+            args.push("telnet");
             addArgIfExist("--username", ["telnet", "user"]);
             addArgIfExist("--password", ["telnet", "password"]);
         } else if (device.ssh) {
-            args.push("--proto")
-            args.push("ssh")
+            args.push("--proto");
+            args.push("ssh");
             addArgIfExist("--username", ["ssh", "user"]);
             addArgIfExist("--password", ["ssh", "password"]);
+        } else if (device.ftp) {
+            args.push("--proto");
+            args.push("ftp");
+            addArgIfExist("--username", ["ftp", "user"]);
+            addArgIfExist("--password", ["ftp", "password"]);
         }
         addArgIfExist("--interface", "interface");
         addArgIfExist("--remote-folder", "remote_folder");
